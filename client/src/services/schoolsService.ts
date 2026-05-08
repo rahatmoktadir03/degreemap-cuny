@@ -1,5 +1,5 @@
 import axios from "axios";
-import { School, ApiResponse } from "../types/school";
+import type { School, ApiResponse } from "../types/school";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 

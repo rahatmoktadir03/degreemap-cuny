@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
 import { LatLngBounds } from "leaflet";
 import L from "leaflet";
-import { School } from "../types/school";
+import type { School } from "../types/school";
 
 interface SchoolMapProps {
   schools: School[];

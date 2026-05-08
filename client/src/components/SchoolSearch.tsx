@@ -1,5 +1,5 @@
 import React from "react";
-import { School } from "../types/school";
+import type { School } from "../types/school";
 
 interface SchoolSearchProps {
   schools: School[];

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
 
@@ -47,7 +47,7 @@ const DashboardPage: React.FC = () => {
         <div className="grid md:grid-cols-3 gap-6">
           {/* Start Building Roadmap */}
           <div
-            onClick={() => navigate("/builder")}
+            onClick={() => navigate("/roadmap")}
             className="bg-white rounded-lg shadow p-6 border-l-4 border-primary-600 hover:shadow-lg cursor-pointer transition"
           >
             <div className="text-4xl mb-4">🧭</div>

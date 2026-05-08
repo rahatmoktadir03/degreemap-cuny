@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import SchoolMap from "../components/SchoolMap";
 import SchoolSearch from "../components/SchoolSearch";
 import SchoolSidebar from "../components/SchoolSidebar";
-import { School } from "../types/school";
+import type { School } from "../types/school";
 import { fetchSchools } from "../services/schoolsService";
 
 const ExplorePage: React.FC = () => {
