@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const LandingPage: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-secondary-900 text-white">
       {/* Header */}
@@ -52,7 +54,10 @@ const LandingPage: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition font-semibold text-lg">
+            <button
+              onClick={() => navigate("/explore")}
+              className="px-8 py-4 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition font-semibold text-lg"
+            >
               Explore CUNY
             </button>
             <button className="px-8 py-4 border-2 border-secondary-500 text-secondary-300 rounded-lg hover:bg-secondary-500 hover:text-white transition font-semibold text-lg">
