@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import schoolsRouter from "./routes/schools.js";
+import usersRouter from "./routes/users.js";
 
 dotenv.config();
 
@@ -19,6 +20,9 @@ app.get("/api/health", (_req: Request, res: Response) => {
 
 // Schools Routes
 app.use("/api/schools", schoolsRouter);
+
+// Users Routes (Protected with JWT)
+app.use("/api/users", usersRouter);
 
 // Start Server
 app.listen(PORT, () => {
