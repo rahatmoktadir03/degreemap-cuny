@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -6,17 +6,17 @@ import ReactFlow, {
   Background,
   Controls,
   MiniMap,
-} from 'reactflow';
-import type { Connection } from 'reactflow';
-import 'reactflow/dist/style.css';
-import { useAuth } from '../store/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { CourseNode } from '../components/roadmap/CourseNode';
-import { MilestoneNode } from '../components/roadmap/MilestoneNode';
-import { ElectiveNode } from '../components/roadmap/ElectiveNode';
-import { CareerGoalNode } from '../components/roadmap/CareerGoalNode';
-import type { RoadmapNode, RoadmapEdge, NodeType } from '../types/roadmap';
-import { Semester } from '../types/roadmap';
+} from "reactflow";
+import type { Connection } from "reactflow";
+import "reactflow/dist/style.css";
+import { useAuth } from "../store/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { CourseNode } from "../components/roadmap/CourseNode";
+import { MilestoneNode } from "../components/roadmap/MilestoneNode";
+import { ElectiveNode } from "../components/roadmap/ElectiveNode";
+import { CareerGoalNode } from "../components/roadmap/CareerGoalNode";
+import type { RoadmapNode, RoadmapEdge, NodeType } from "../types/roadmap";
+import { Semester } from "../types/roadmap";
 
 const nodeTypes = {
   course: CourseNode,
@@ -27,43 +27,43 @@ const nodeTypes = {
 
 const initialNodes: RoadmapNode[] = [
   {
-    id: '1',
-    type: 'careerGoal',
-    data: { label: 'My Career Goal', description: 'Define your career objective' },
+    id: "1",
+    type: "careerGoal",
+    data: { label: "My Career Goal", description: "Define your career objective" },
     position: { x: 250, y: 0 },
   },
   {
-    id: '2',
-    type: 'course',
-    data: { label: 'Introduction to CS', credits: 3, semester: Semester.Fall },
+    id: "2",
+    type: "course",
+    data: { label: "Introduction to CS", credits: 3, semester: Semester.Fall },
     position: { x: 100, y: 150 },
   },
   {
-    id: '3',
-    type: 'course',
-    data: { label: 'Data Structures', credits: 4, semester: Semester.Spring },
+    id: "3",
+    type: "course",
+    data: { label: "Data Structures", credits: 4, semester: Semester.Spring },
     position: { x: 300, y: 150 },
   },
 ];
 
 const initialEdges: RoadmapEdge[] = [
-  { id: 'e1-2', source: '1', target: '2' },
-  { id: 'e1-3', source: '1', target: '3' },
+  { id: "e1-2", source: "1", target: "2" },
+  { id: "e1-3", source: "1", target: "3" },
 ];
 
 export const RoadmapBuilderPage: React.FC = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [title, setTitle] = useState('My Academic Roadmap');
+  const [title, setTitle] = useState("My Academic Roadmap");
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [selectedNodeType, setSelectedNodeType] = useState<NodeType>('course');
+  const [selectedNodeType, setSelectedNodeType] = useState<NodeType>("course");
   const nodeIdRef = useRef(4);
 
   // Redirect if not authenticated
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, loading, navigate]);
 
@@ -84,35 +84,35 @@ export const RoadmapBuilderPage: React.FC = () => {
     let newNode: RoadmapNode;
 
     switch (selectedNodeType) {
-      case 'course':
+      case "course":
         newNode = {
           id: newNodeId,
-          type: 'course',
-          data: { label: 'New Course', credits: 3, semester: Semester.Fall },
+          type: "course",
+          data: { label: "New Course", credits: 3, semester: Semester.Fall },
           position: { x: randomX, y: randomY },
         };
         break;
-      case 'milestone':
+      case "milestone":
         newNode = {
           id: newNodeId,
-          type: 'milestone',
-          data: { label: 'New Milestone', description: '' },
+          type: "milestone",
+          data: { label: "New Milestone", description: "" },
           position: { x: randomX, y: randomY },
         };
         break;
-      case 'elective':
+      case "elective":
         newNode = {
           id: newNodeId,
-          type: 'elective',
-          data: { label: 'New Elective', credits: 3, semester: Semester.Spring },
+          type: "elective",
+          data: { label: "New Elective", credits: 3, semester: Semester.Spring },
           position: { x: randomX, y: randomY },
         };
         break;
-      case 'careerGoal':
+      case "careerGoal":
         newNode = {
           id: newNodeId,
-          type: 'careerGoal',
-          data: { label: 'New Career Goal', description: '' },
+          type: "careerGoal",
+          data: { label: "New Career Goal", description: "" },
           position: { x: randomX, y: randomY },
         };
         break;
@@ -134,13 +134,13 @@ export const RoadmapBuilderPage: React.FC = () => {
 
   // Save roadmap (placeholder)
   const handleSave = () => {
-    console.log('Saving roadmap:', {
+    console.log("Saving roadmap:", {
       title,
       nodes,
       edges,
       userId: user?.id,
     });
-    alert('Roadmap saved! (Integration coming next)');
+    alert("Roadmap saved! (Integration coming next)");
   };
 
   if (loading) {
@@ -164,7 +164,7 @@ export const RoadmapBuilderPage: React.FC = () => {
             <p className="text-gray-600 mt-1">Create your personalized academic path</p>
           </div>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
           >
             ← Back to Dashboard
@@ -187,17 +187,23 @@ export const RoadmapBuilderPage: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-900 mb-4">Node Types</h2>
 
           <div className="space-y-3 mb-6">
-            {(['course', 'milestone', 'elective', 'careerGoal'] as const).map((type) => (
+            {(["course", "milestone", "elective", "careerGoal"] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setSelectedNodeType(type)}
                 className={`w-full px-3 py-2 rounded-lg text-sm font-medium transition ${
                   selectedNodeType === type
-                    ? 'bg-sky-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? "bg-sky-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {type === 'careerGoal' ? '🎓 Career Goal' : type === 'course' ? '📚 Course' : type === 'milestone' ? '🎯 Milestone' : '★ Elective'}
+                {type === "careerGoal"
+                  ? "🎓 Career Goal"
+                  : type === "course"
+                    ? "📚 Course"
+                    : type === "milestone"
+                      ? "🎯 Milestone"
+                      : "★ Elective"}
               </button>
             ))}
           </div>
@@ -250,7 +256,7 @@ export const RoadmapBuilderPage: React.FC = () => {
       <div className="bg-white border-t border-gray-200 px-6 py-4 shadow-lg">
         <div className="flex justify-end gap-3">
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
             className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium"
           >
             Cancel

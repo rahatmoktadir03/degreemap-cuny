@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Handle, Position } from 'reactflow';
-import type { MilestoneNodeData } from '../../types/roadmap';
+import React, { useState } from "react";
+import { Handle, Position } from "reactflow";
+import type { MilestoneNodeData } from "../../types/roadmap";
 
 interface MilestoneNodeProps {
   data: MilestoneNodeData;
@@ -10,7 +10,7 @@ interface MilestoneNodeProps {
 export const MilestoneNode: React.FC<MilestoneNodeProps> = ({ data, isConnectable }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(data.label);
-  const [description, setDescription] = useState(data.description || '');
+  const [description, setDescription] = useState(data.description || "");
 
   const handleSave = () => {
     setIsEditing(false);

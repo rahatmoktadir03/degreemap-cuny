@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Handle, Position } from 'reactflow';
-import type { ElectiveNodeData } from '../../types/roadmap';
-import { Semester } from '../../types/roadmap';
+import React, { useState } from "react";
+import { Handle, Position } from "reactflow";
+import type { ElectiveNodeData } from "../../types/roadmap";
+import { Semester } from "../../types/roadmap";
 
 interface ElectiveNodeProps {
   data: ElectiveNodeData;

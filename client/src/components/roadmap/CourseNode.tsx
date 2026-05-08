@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Handle, Position } from 'reactflow';
-import type { CourseNodeData } from '../../types/roadmap';
-import { Semester } from '../../types/roadmap';
+import React, { useState } from "react";
+import { Handle, Position } from "reactflow";
+import type { CourseNodeData } from "../../types/roadmap";
+import { Semester } from "../../types/roadmap";
 
 interface CourseNodeProps {
   data: CourseNodeData;

@@ -1,16 +1,16 @@
-import type { Node, Edge } from 'reactflow';
+import type { Node, Edge } from "reactflow";
 
 // Node types enum
-export type NodeType = 'course' | 'milestone' | 'elective' | 'careerGoal';
+export type NodeType = "course" | "milestone" | "elective" | "careerGoal";
 
 // Semester enum - using const instead of enum for ESM compatibility
 export const Semester = {
-  Fall: 'Fall',
-  Spring: 'Spring',
-  Summer: 'Summer',
+  Fall: "Fall",
+  Spring: "Spring",
+  Summer: "Summer",
 } as const;
 
-export type Semester = typeof Semester[keyof typeof Semester];
+export type Semester = (typeof Semester)[keyof typeof Semester];
 
 // Node data interface - extended from React Flow Node
 export interface CourseNodeData {
@@ -41,7 +41,11 @@ export interface CareerGoalNodeData {
   completed?: boolean;
 }
 
-export type RoadmapNodeData = CourseNodeData | MilestoneNodeData | ElectiveNodeData | CareerGoalNodeData;
+export type RoadmapNodeData =
+  | CourseNodeData
+  | MilestoneNodeData
+  | ElectiveNodeData
+  | CareerGoalNodeData;
 
 // React Flow Node type
 export type RoadmapNode = Node<RoadmapNodeData, NodeType>;

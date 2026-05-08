@@ -1,20 +1,20 @@
-import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { roadmapsService } from '../services/roadmapsService';
-import { RoadmapNode, RoadmapEdge } from '../types/roadmap';
+import { Response } from "express";
+import { AuthenticatedRequest } from "../middleware/auth";
+import { roadmapsService } from "../services/roadmapsService";
+import { RoadmapNode, RoadmapEdge } from "../types/roadmap";
 
 export const roadmapsController = {
   // Create a new roadmap
   async createRoadmap(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.user?.id) {
-        return res.status(401).json({ error: 'Not authenticated' });
+        return res.status(401).json({ error: "Not authenticated" });
       }
 
       const { title, description, nodes, edges } = req.body;
 
       if (!title) {
-        return res.status(400).json({ error: 'Title is required' });
+        return res.status(400).json({ error: "Title is required" });
       }
 
       const roadmap = await roadmapsService.createRoadmap(
@@ -27,8 +27,8 @@ export const roadmapsController = {
 
       res.status(201).json({ success: true, data: roadmap });
     } catch (error) {
-      console.error('Error creating roadmap:', error);
-      res.status(500).json({ error: 'Failed to create roadmap' });
+      console.error("Error creating roadmap:", error);
+      res.status(500).json({ error: "Failed to create roadmap" });
     }
   },
 
@@ -36,14 +36,14 @@ export const roadmapsController = {
   async getUserRoadmaps(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.user?.id) {
-        return res.status(401).json({ error: 'Not authenticated' });
+        return res.status(401).json({ error: "Not authenticated" });
       }
 
       const roadmaps = await roadmapsService.getUserRoadmaps(req.user.id);
       res.json({ success: true, data: roadmaps });
     } catch (error) {
-      console.error('Error fetching roadmaps:', error);
-      res.status(500).json({ error: 'Failed to fetch roadmaps' });
+      console.error("Error fetching roadmaps:", error);
+      res.status(500).json({ error: "Failed to fetch roadmaps" });
     }
   },
 
@@ -51,20 +51,20 @@ export const roadmapsController = {
   async getRoadmap(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.user?.id) {
-        return res.status(401).json({ error: 'Not authenticated' });
+        return res.status(401).json({ error: "Not authenticated" });
       }
 
       const { id } = req.params;
       const roadmap = await roadmapsService.getRoadmap(id, req.user.id);
 
       if (!roadmap) {
-        return res.status(404).json({ error: 'Roadmap not found' });
+        return res.status(404).json({ error: "Roadmap not found" });
       }
 
       res.json({ success: true, data: roadmap });
     } catch (error) {
-      console.error('Error fetching roadmap:', error);
-      res.status(500).json({ error: 'Failed to fetch roadmap' });
+      console.error("Error fetching roadmap:", error);
+      res.status(500).json({ error: "Failed to fetch roadmap" });
     }
   },
 
@@ -72,7 +72,7 @@ export const roadmapsController = {
   async updateRoadmap(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.user?.id) {
-        return res.status(401).json({ error: 'Not authenticated' });
+        return res.status(401).json({ error: "Not authenticated" });
       }
 
       const { id } = req.params;
@@ -80,7 +80,7 @@ export const roadmapsController = {
 
       if (!title || !nodes || !edges) {
         return res.status(400).json({
-          error: 'Title, nodes, and edges are required',
+          error: "Title, nodes, and edges are required",
         });
       }
 
@@ -95,8 +95,8 @@ export const roadmapsController = {
 
       res.json({ success: true, data: roadmap });
     } catch (error) {
-      console.error('Error updating roadmap:', error);
-      res.status(500).json({ error: 'Failed to update roadmap' });
+      console.error("Error updating roadmap:", error);
+      res.status(500).json({ error: "Failed to update roadmap" });
     }
   },
 
@@ -104,16 +104,16 @@ export const roadmapsController = {
   async deleteRoadmap(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.user?.id) {
-        return res.status(401).json({ error: 'Not authenticated' });
+        return res.status(401).json({ error: "Not authenticated" });
       }
 
       const { id } = req.params;
       await roadmapsService.deleteRoadmap(id, req.user.id);
 
-      res.json({ success: true, message: 'Roadmap deleted' });
+      res.json({ success: true, message: "Roadmap deleted" });
     } catch (error) {
-      console.error('Error deleting roadmap:', error);
-      res.status(500).json({ error: 'Failed to delete roadmap' });
+      console.error("Error deleting roadmap:", error);
+      res.status(500).json({ error: "Failed to delete roadmap" });
     }
   },
 
@@ -123,8 +123,8 @@ export const roadmapsController = {
       const templates = await roadmapsService.getTemplateRoadmaps();
       res.json({ success: true, data: templates });
     } catch (error) {
-      console.error('Error fetching templates:', error);
-      res.status(500).json({ error: 'Failed to fetch templates' });
+      console.error("Error fetching templates:", error);
+      res.status(500).json({ error: "Failed to fetch templates" });
     }
   },
 };

@@ -1,16 +1,16 @@
-import { supabase } from './supabase';
-import type { RoadmapNode, RoadmapEdge } from '../types/roadmap';
+import { supabase } from "./supabase";
+import type { RoadmapNode, RoadmapEdge } from "../types/roadmap";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const roadmapService = {
   // Create a new roadmap
   async createRoadmap(title: string, description?: string) {
     try {
       const response = await fetch(`${API_URL}/api/roadmaps`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
         },
         body: JSON.stringify({
@@ -21,10 +21,10 @@ export const roadmapService = {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to create roadmap');
+      if (!response.ok) throw new Error("Failed to create roadmap");
       return await response.json();
     } catch (error) {
-      console.error('Error creating roadmap:', error);
+      console.error("Error creating roadmap:", error);
       throw error;
     }
   },
@@ -35,19 +35,19 @@ export const roadmapService = {
       const session = await supabase.auth.getSession();
       const userId = session.data.session?.user?.id;
 
-      if (!userId) throw new Error('User not authenticated');
+      if (!userId) throw new Error("User not authenticated");
 
       const response = await fetch(`${API_URL}/api/roadmaps/${userId}`, {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: `Bearer ${session.data.session?.access_token}`,
         },
       });
 
-      if (!response.ok) throw new Error('Failed to fetch roadmaps');
+      if (!response.ok) throw new Error("Failed to fetch roadmaps");
       return await response.json();
     } catch (error) {
-      console.error('Error fetching roadmaps:', error);
+      console.error("Error fetching roadmaps:", error);
       throw error;
     }
   },
@@ -58,16 +58,16 @@ export const roadmapService = {
       const session = await supabase.auth.getSession();
 
       const response = await fetch(`${API_URL}/api/roadmaps/detail/${roadmapId}`, {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: `Bearer ${session.data.session?.access_token}`,
         },
       });
 
-      if (!response.ok) throw new Error('Failed to fetch roadmap');
+      if (!response.ok) throw new Error("Failed to fetch roadmap");
       return await response.json();
     } catch (error) {
-      console.error('Error fetching roadmap:', error);
+      console.error("Error fetching roadmap:", error);
       throw error;
     }
   },
@@ -84,9 +84,9 @@ export const roadmapService = {
       const session = await supabase.auth.getSession();
 
       const response = await fetch(`${API_URL}/api/roadmaps/${roadmapId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${session.data.session?.access_token}`,
         },
         body: JSON.stringify({
@@ -97,10 +97,10 @@ export const roadmapService = {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to save roadmap');
+      if (!response.ok) throw new Error("Failed to save roadmap");
       return await response.json();
     } catch (error) {
-      console.error('Error saving roadmap:', error);
+      console.error("Error saving roadmap:", error);
       throw error;
     }
   },
@@ -111,16 +111,16 @@ export const roadmapService = {
       const session = await supabase.auth.getSession();
 
       const response = await fetch(`${API_URL}/api/roadmaps/${roadmapId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.data.session?.access_token}`,
         },
       });
 
-      if (!response.ok) throw new Error('Failed to delete roadmap');
+      if (!response.ok) throw new Error("Failed to delete roadmap");
       return await response.json();
     } catch (error) {
-      console.error('Error deleting roadmap:', error);
+      console.error("Error deleting roadmap:", error);
       throw error;
     }
   },
@@ -129,13 +129,13 @@ export const roadmapService = {
   async getTemplateRoadmaps() {
     try {
       const response = await fetch(`${API_URL}/api/roadmaps/templates`, {
-        method: 'GET',
+        method: "GET",
       });
 
-      if (!response.ok) throw new Error('Failed to fetch templates');
+      if (!response.ok) throw new Error("Failed to fetch templates");
       return await response.json();
     } catch (error) {
-      console.error('Error fetching templates:', error);
+      console.error("Error fetching templates:", error);
       throw error;
     }
   },

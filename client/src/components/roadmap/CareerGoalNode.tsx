@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Handle, Position } from 'reactflow';
-import type { CareerGoalNodeData } from '../../types/roadmap';
+import React, { useState } from "react";
+import { Handle, Position } from "reactflow";
+import type { CareerGoalNodeData } from "../../types/roadmap";
 
 interface CareerGoalNodeProps {
   data: CareerGoalNodeData;
@@ -10,7 +10,7 @@ interface CareerGoalNodeProps {
 export const CareerGoalNode: React.FC<CareerGoalNodeProps> = ({ data, isConnectable }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(data.label);
-  const [description, setDescription] = useState(data.description || '');
+  const [description, setDescription] = useState(data.description || "");
 
   const handleSave = () => {
     setIsEditing(false);

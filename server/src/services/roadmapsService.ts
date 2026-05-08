@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '../supabase/client';
-import { Roadmap, RoadmapNode, RoadmapEdge } from '../types/roadmap';
+import { supabaseAdmin } from "../supabase/client";
+import { Roadmap, RoadmapNode, RoadmapEdge } from "../types/roadmap";
 
 export const roadmapsService = {
   // Create a new roadmap
@@ -12,7 +12,7 @@ export const roadmapsService = {
   ) {
     try {
       const { data, error } = await supabaseAdmin
-        .from('roadmaps')
+        .from("roadmaps")
         .insert({
           user_id: userId,
           title,
@@ -27,7 +27,7 @@ export const roadmapsService = {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creating roadmap:', error);
+      console.error("Error creating roadmap:", error);
       throw error;
     }
   },
@@ -36,16 +36,16 @@ export const roadmapsService = {
   async getUserRoadmaps(userId: string) {
     try {
       const { data, error } = await supabaseAdmin
-        .from('roadmaps')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('is_template', false)
-        .order('created_at', { ascending: false });
+        .from("roadmaps")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("is_template", false)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error fetching user roadmaps:', error);
+      console.error("Error fetching user roadmaps:", error);
       throw error;
     }
   },
@@ -54,16 +54,16 @@ export const roadmapsService = {
   async getRoadmap(roadmapId: string, userId: string) {
     try {
       const { data, error } = await supabaseAdmin
-        .from('roadmaps')
-        .select('*')
-        .eq('id', roadmapId)
-        .eq('user_id', userId)
+        .from("roadmaps")
+        .select("*")
+        .eq("id", roadmapId)
+        .eq("user_id", userId)
         .single();
 
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error fetching roadmap:', error);
+      console.error("Error fetching roadmap:", error);
       throw error;
     }
   },
@@ -79,7 +79,7 @@ export const roadmapsService = {
   ) {
     try {
       const { data, error } = await supabaseAdmin
-        .from('roadmaps')
+        .from("roadmaps")
         .update({
           title,
           description,
@@ -87,15 +87,15 @@ export const roadmapsService = {
           edges: JSON.stringify(edges),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', roadmapId)
-        .eq('user_id', userId)
+        .eq("id", roadmapId)
+        .eq("user_id", userId)
         .select()
         .single();
 
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error updating roadmap:', error);
+      console.error("Error updating roadmap:", error);
       throw error;
     }
   },
@@ -104,15 +104,15 @@ export const roadmapsService = {
   async deleteRoadmap(roadmapId: string, userId: string) {
     try {
       const { error } = await supabaseAdmin
-        .from('roadmaps')
+        .from("roadmaps")
         .delete()
-        .eq('id', roadmapId)
-        .eq('user_id', userId);
+        .eq("id", roadmapId)
+        .eq("user_id", userId);
 
       if (error) throw error;
       return { success: true };
     } catch (error) {
-      console.error('Error deleting roadmap:', error);
+      console.error("Error deleting roadmap:", error);
       throw error;
     }
   },
@@ -121,15 +121,15 @@ export const roadmapsService = {
   async getTemplateRoadmaps() {
     try {
       const { data, error } = await supabaseAdmin
-        .from('roadmaps')
-        .select('*')
-        .eq('is_template', true)
-        .order('title', { ascending: true });
+        .from("roadmaps")
+        .select("*")
+        .eq("is_template", true)
+        .order("title", { ascending: true });
 
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error fetching template roadmaps:', error);
+      console.error("Error fetching template roadmaps:", error);
       throw error;
     }
   },
@@ -144,7 +144,7 @@ export const roadmapsService = {
   ) {
     try {
       const { data, error } = await supabaseAdmin
-        .from('roadmaps')
+        .from("roadmaps")
         .insert({
           user_id: null, // Templates don't belong to a specific user
           title,
@@ -160,7 +160,7 @@ export const roadmapsService = {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creating template roadmap:', error);
+      console.error("Error creating template roadmap:", error);
       throw error;
     }
   },
