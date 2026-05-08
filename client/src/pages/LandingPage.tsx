@@ -10,8 +10,16 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="text-3xl font-bold">DegreeMap</div>
           <div className="space-x-4">
-            <button className="px-4 py-2 rounded-lg hover:bg-primary-700 transition">Login</button>
-            <button className="px-6 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition font-semibold">
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-2 rounded-lg hover:bg-primary-700 transition"
+            >
+              Login
+            </button>
+            <button
+              onClick={() => navigate("/register")}
+              className="px-6 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition font-semibold"
+            >
               Sign Up
             </button>
           </div>
@@ -60,7 +68,10 @@ const LandingPage: React.FC = () => {
             >
               Explore CUNY
             </button>
-            <button className="px-8 py-4 border-2 border-secondary-500 text-secondary-300 rounded-lg hover:bg-secondary-500 hover:text-white transition font-semibold text-lg">
+            <button
+              onClick={() => navigate("/register")}
+              className="px-8 py-4 border-2 border-secondary-500 text-secondary-300 rounded-lg hover:bg-secondary-500 hover:text-white transition font-semibold text-lg"
+            >
               Get Started
             </button>
           </div>
