@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import schoolsRouter from "./routes/schools.js";
 
 dotenv.config();
 
@@ -15,6 +16,9 @@ app.use(express.json());
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ success: true, message: "DegreeMap server is running 🎓" });
 });
+
+// Schools Routes
+app.use("/api/schools", schoolsRouter);
 
 // Start Server
 app.listen(PORT, () => {
