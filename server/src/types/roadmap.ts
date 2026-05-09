@@ -8,8 +8,7 @@ export const CompletionStatus = {
   Completed: "completed",
 } as const;
 
-export type CompletionStatus =
-  (typeof CompletionStatus)[keyof typeof CompletionStatus];
+export type CompletionStatus = (typeof CompletionStatus)[keyof typeof CompletionStatus];
 
 // Semester - using const instead of enum for ESM compatibility
 export const Semester = {

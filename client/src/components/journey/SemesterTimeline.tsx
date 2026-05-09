@@ -85,7 +85,9 @@ export const SemesterTimeline: React.FC<SemesterTimelineProps> = ({ roadmap }) =
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-xs">{data.notes || "No notes"}</span>
-                        <span className="text-xs font-semibold ml-2">{getStatusBadge(data.status)}</span>
+                        <span className="text-xs font-semibold ml-2">
+                          {getStatusBadge(data.status)}
+                        </span>
                       </div>
                     </div>
                   );

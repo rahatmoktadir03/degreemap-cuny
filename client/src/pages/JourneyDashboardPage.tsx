@@ -60,7 +60,8 @@ export const JourneyDashboardPage: React.FC = () => {
       return sum + (data.credits || 0);
     }, 0);
 
-    const completionPercentage = courseNodes.length > 0 ? Math.round((completedNodes.length / courseNodes.length) * 100) : 0;
+    const completionPercentage =
+      courseNodes.length > 0 ? Math.round((completedNodes.length / courseNodes.length) * 100) : 0;
 
     return {
       totalNodes: courseNodes.length,
@@ -91,7 +92,9 @@ export const JourneyDashboardPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">📅 My Journey</h1>
-            <p className="text-gray-600 mt-1">Track your academic progress and roadmap completion</p>
+            <p className="text-gray-600 mt-1">
+              Track your academic progress and roadmap completion
+            </p>
           </div>
           <button
             onClick={() => navigate("/dashboard")}
@@ -148,7 +151,9 @@ export const JourneyDashboardPage: React.FC = () => {
                           style={{ width: `${progress.completionPercentage}%` }}
                         ></div>
                       </div>
-                      <p className="text-green-600 font-semibold">{progress.completionPercentage}%</p>
+                      <p className="text-green-600 font-semibold">
+                        {progress.completionPercentage}%
+                      </p>
                     </div>
                   </button>
                 );
@@ -209,20 +214,27 @@ export const JourneyDashboardPage: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total Courses</span>
-                    <span className="font-semibold text-gray-900">{calculateProgress(selectedRoadmap).totalNodes}</span>
+                    <span className="font-semibold text-gray-900">
+                      {calculateProgress(selectedRoadmap).totalNodes}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total Credits</span>
-                    <span className="font-semibold text-gray-900">{calculateProgress(selectedRoadmap).totalCredits}</span>
+                    <span className="font-semibold text-gray-900">
+                      {calculateProgress(selectedRoadmap).totalCredits}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Credits Earned</span>
-                    <span className="font-semibold text-green-600">{calculateProgress(selectedRoadmap).completedCredits}</span>
+                    <span className="font-semibold text-green-600">
+                      {calculateProgress(selectedRoadmap).completedCredits}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Credits Remaining</span>
                     <span className="font-semibold text-amber-600">
-                      {calculateProgress(selectedRoadmap).totalCredits - calculateProgress(selectedRoadmap).completedCredits}
+                      {calculateProgress(selectedRoadmap).totalCredits -
+                        calculateProgress(selectedRoadmap).completedCredits}
                     </span>
                   </div>
                 </div>

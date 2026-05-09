@@ -24,14 +24,7 @@ export const CreditsTracker: React.FC<CreditsTrackerProps> = ({
         <div className="relative w-40 h-40">
           {/* Background circle */}
           <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              stroke="#e5e7eb"
-              strokeWidth="8"
-              fill="none"
-            />
+            <circle cx="50" cy="50" r="45" stroke="#e5e7eb" strokeWidth="8" fill="none" />
             {/* Progress circle */}
             <circle
               cx="50"

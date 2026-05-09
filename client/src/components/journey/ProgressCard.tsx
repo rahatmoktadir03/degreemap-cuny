@@ -31,9 +31,7 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({
         {value}
         {isPercentage ? "%" : ""}
       </p>
-      {!isPercentage && (
-        <p className="text-sm opacity-75 mt-1">of {total}</p>
-      )}
+      {!isPercentage && <p className="text-sm opacity-75 mt-1">of {total}</p>}
       <div className="mt-4 bg-white bg-opacity-20 rounded h-2">
         <div
           className="bg-white h-2 rounded transition-all"

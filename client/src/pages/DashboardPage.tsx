@@ -78,7 +78,9 @@ const DashboardPage: React.FC = () => {
           >
             <div className="text-4xl mb-4">📊</div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">My Journey</h3>
-            <p className="text-gray-600 mb-4">Track your progress and view roadmap completion stats.</p>
+            <p className="text-gray-600 mb-4">
+              Track your progress and view roadmap completion stats.
+            </p>
             <p className="text-blue-600 font-semibold">View Progress →</p>
           </div>
         </div>
