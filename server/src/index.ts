@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import schoolsRouter from "./routes/schools.js";
 import usersRouter from "./routes/users.js";
 import roadmapsRouter from "./routes/roadmaps.js";
+import advisorRouter from "./routes/advisor.js";
 
 dotenv.config();
 
@@ -27,6 +28,9 @@ app.use("/api/users", usersRouter);
 
 // Roadmaps Routes (Protected with JWT)
 app.use("/api/roadmaps", roadmapsRouter);
+
+// Advisor Routes (Protected with JWT)
+app.use("/api/advisor", advisorRouter);
 
 // Start Server
 app.listen(PORT, () => {

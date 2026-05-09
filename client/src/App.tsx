@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import { RoadmapBuilderPage } from "./pages/RoadmapBuilderPage";
 import { JourneyDashboardPage } from "./pages/JourneyDashboardPage";
+import { AdvisorDashboardPage } from "./pages/AdvisorDashboardPage";
 import { PublicRoadmapPage } from "./pages/PublicRoadmapPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -45,6 +46,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <JourneyDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/advisor"
+              element={
+                <ProtectedRoute>
+                  <AdvisorDashboardPage />
                 </ProtectedRoute>
               }
             />
