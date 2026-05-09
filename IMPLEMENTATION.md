@@ -153,13 +153,13 @@ feat: add pre-built template roadmaps for common CUNY majors
 
 ### ✅ Phase 4 — My Journey Dashboard
 
-- [ ] Build personal dashboard page (protected route)
-- [ ] Show roadmap progress (% of nodes marked complete)
-- [ ] Students can mark nodes/courses as Complete, In Progress, or Planned
-- [ ] Display semester-by-semester timeline view
-- [ ] Show total credits planned vs. completed
-- [ ] Credit progress bar / ring chart (Recharts)
-- [ ] Quick-link to their saved roadmap
+- [x] Build personal dashboard page (protected route)
+- [x] Show roadmap progress (% of nodes marked complete)
+- [x] Students can mark nodes/courses as Complete, In Progress, or Planned
+- [x] Display semester-by-semester timeline view
+- [x] Show total credits planned vs. completed
+- [x] Credit progress bar / ring chart (Recharts)
+- [x] Quick-link to their saved roadmap
 
 **Suggested Commit Messages:**
 
@@ -202,6 +202,7 @@ docs: finalize README with setup guide and feature screenshots
 | 5/8/26 | Phase 1 | ✅ Seeded 24 CUNY schools into Supabase with full campus data (name, borough, type, enrollment, programs, etc). Built GET /api/schools and GET /api/schools/:id REST endpoints. Created interactive Leaflet map with school markers. Built SchoolMap, SchoolSearch, and SchoolSidebar components. Added search/filter by school name, type, and borough. Implemented stats sidebar showing enrollment, founded year, programs, and website links. Added ExplorePage with full integration. Linked "Explore CUNY" button on landing page to /explore route.                                                                                                                                                                                                                                                           |
 | 5/8/26 | Phase 2 | ✅ Integrated Supabase Auth with register and login flows. Created RegisterPage with email validation and minimum 6-char password requirement. Created LoginPage with session restoration and success message on redirect from register. Built AuthContext with useAuth hook managing user, session, loading state, and signUp/signIn/signOut functions. Implemented ProtectedRoute wrapper component for route-level authentication checks. Built DashboardPage as protected landing showing user info and navigation options. Created backend JWT validation middleware to validate Supabase tokens. Built user profile endpoints: GET /api/users/me and PUT /api/users/me with profile update capability. Updated App.tsx with AuthProvider wrapping entire app. Verified all TypeScript compiles without errors. |
 | 5/8/26 | Phase 3 | ✅ Built interactive roadmap builder with React Flow canvas. Created custom node components: CourseNode (with credits/semester), MilestoneNode, ElectiveNode, and CareerGoalNode with editable fields. Implemented RoadmapBuilderPage with full canvas UI including add node, delete node, and connection management. Created backend API endpoints for CRUD operations on roadmaps (POST/GET/PUT/DELETE /api/roadmaps). Built roadmapService for client-side API calls with authentication. Fixed TypeScript strict mode issues with type-only imports. Updated Tailwind CSS 4 configuration for proper PostCSS setup. Added /roadmap protected route to App.tsx and linked from DashboardPage. All code compiles successfully without errors.                                                                      |
+| 5/8/26 | Phase 4 | ✅ Built My Journey Dashboard for authenticated users. Created JourneyDashboardPage with roadmap selection, progress calculation (completed/in-progress/planned nodes), and semester timeline view. Built ProgressCard component to display individual progress metrics with animated progress bars. Implemented CreditsTracker with SVG ring chart showing completed vs remaining credits. Created SemesterTimeline component to organize courses by semester with status indicators. Added completion status types (planned, in-progress, completed) to roadmap type definitions. Added /journey protected route to App.tsx and linked from DashboardPage. Updated roadmapService for proper API response handling. All TypeScript compiles successfully. Phase 4 fully functional with all visualization components.       |
 
 ---
 
