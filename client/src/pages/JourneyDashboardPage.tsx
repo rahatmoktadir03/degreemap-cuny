@@ -177,9 +177,13 @@ export const JourneyDashboardPage: React.FC = () => {
         {selectedRoadmap && (
           <>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{selectedRoadmap.title}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                {selectedRoadmap.title}
+              </h2>
               {selectedRoadmap.description && (
-                <p className="text-gray-600 dark:text-gray-400 mb-4">{selectedRoadmap.description}</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  {selectedRoadmap.description}
+                </p>
               )}
             </div>
 
@@ -221,7 +225,9 @@ export const JourneyDashboardPage: React.FC = () => {
 
               {/* Quick Stats */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Stats</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                  Quick Stats
+                </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Total Courses</span>

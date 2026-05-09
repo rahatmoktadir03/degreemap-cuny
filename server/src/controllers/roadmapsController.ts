@@ -163,10 +163,7 @@ export const roadmapsController = {
         return res.status(400).json({ error: "Roadmap ID is required" });
       }
 
-      const shareId = await roadmapsService.generateShareId(
-        roadmapId,
-        req.user.id
-      );
+      const shareId = await roadmapsService.generateShareId(roadmapId, req.user.id);
       const shareUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/roadmap/public/${shareId}`;
 
       res.json({ success: true, data: { shareId, shareUrl } });
