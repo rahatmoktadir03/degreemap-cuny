@@ -25,14 +25,11 @@ export const AdvisorDashboardPage: React.FC = () => {
   // Load list of students (would come from backend endpoint)
   const loadStudents = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/advisor/students`,
-        {
-          headers: {
-            Authorization: `Bearer ${(await (await import("../services/supabase")).supabase.auth.getSession()).data.session?.access_token}`,
-          },
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/advisor/students`, {
+        headers: {
+          Authorization: `Bearer ${(await (await import("../services/supabase")).supabase.auth.getSession()).data.session?.access_token}`,
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -280,7 +277,9 @@ export const AdvisorDashboardPage: React.FC = () => {
                 ) : (
                   <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
                     <p className="text-gray-600 dark:text-gray-400">
-                      {roadmapLoading ? "Loading roadmaps..." : "No roadmaps found for this student."}
+                      {roadmapLoading
+                        ? "Loading roadmaps..."
+                        : "No roadmaps found for this student."}
                     </p>
                   </div>
                 )}

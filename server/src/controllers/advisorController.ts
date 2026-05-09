@@ -46,17 +46,10 @@ export const advisorController = {
       const { nodeId, comment } = req.body;
 
       if (!roadmapId || !nodeId || !comment) {
-        return res
-          .status(400)
-          .json({ error: "Roadmap ID, Node ID, and comment are required" });
+        return res.status(400).json({ error: "Roadmap ID, Node ID, and comment are required" });
       }
 
-      const result = await advisorService.addComment(
-        roadmapId,
-        nodeId,
-        req.user.id,
-        comment
-      );
+      const result = await advisorService.addComment(roadmapId, nodeId, req.user.id, comment);
 
       res.status(201).json({ success: true, data: result });
     } catch (error) {
