@@ -3,6 +3,12 @@ import type { RoadmapNode, RoadmapEdge } from "../types/roadmap";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+interface ApiResponse<T> {
+  success?: boolean;
+  data?: T;
+  error?: string;
+}
+
 export const roadmapService = {
   // Create a new roadmap
   async createRoadmap(title: string, description?: string) {
@@ -22,7 +28,8 @@ export const roadmapService = {
       });
 
       if (!response.ok) throw new Error("Failed to create roadmap");
-      return await response.json();
+      const data = await response.json();
+      return { success: true, data } as ApiResponse<any>;
     } catch (error) {
       console.error("Error creating roadmap:", error);
       throw error;
@@ -45,7 +52,8 @@ export const roadmapService = {
       });
 
       if (!response.ok) throw new Error("Failed to fetch roadmaps");
-      return await response.json();
+      const data = await response.json();
+      return { success: true, data } as ApiResponse<any[]>;
     } catch (error) {
       console.error("Error fetching roadmaps:", error);
       throw error;

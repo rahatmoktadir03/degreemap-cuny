@@ -3,6 +3,15 @@ import type { Node, Edge } from "reactflow";
 // Node types enum
 export type NodeType = "course" | "milestone" | "elective" | "careerGoal";
 
+// Completion status
+export const CompletionStatus = {
+  Planned: "planned",
+  InProgress: "in-progress",
+  Completed: "completed",
+} as const;
+
+export type CompletionStatus = (typeof CompletionStatus)[keyof typeof CompletionStatus];
+
 // Semester enum - using const instead of enum for ESM compatibility
 export const Semester = {
   Fall: "Fall",
@@ -18,13 +27,13 @@ export interface CourseNodeData {
   credits: number;
   semester: Semester;
   notes?: string;
-  completed?: boolean;
+  status?: CompletionStatus;
 }
 
 export interface MilestoneNodeData {
   label: string;
   description?: string;
-  completed?: boolean;
+  status?: CompletionStatus;
 }
 
 export interface ElectiveNodeData {
@@ -32,13 +41,13 @@ export interface ElectiveNodeData {
   credits: number;
   semester: Semester;
   notes?: string;
-  completed?: boolean;
+  status?: CompletionStatus;
 }
 
 export interface CareerGoalNodeData {
   label: string;
   description?: string;
-  completed?: boolean;
+  status?: CompletionStatus;
 }
 
 export type RoadmapNodeData =

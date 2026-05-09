@@ -71,12 +71,15 @@ const DashboardPage: React.FC = () => {
             <p className="text-secondary-600 font-semibold">Explore →</p>
           </div>
 
-          {/* My Roadmaps */}
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500 hover:shadow-lg transition">
-            <div className="text-4xl mb-4">📚</div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">My Roadmaps</h3>
-            <p className="text-gray-600 mb-4">View and manage all your saved academic roadmaps.</p>
-            <p className="text-gray-400 font-semibold">Coming soon</p>
+          {/* My Journey */}
+          <div
+            onClick={() => navigate("/journey")}
+            className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500 hover:shadow-lg cursor-pointer transition"
+          >
+            <div className="text-4xl mb-4">📊</div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">My Journey</h3>
+            <p className="text-gray-600 mb-4">Track your progress and view roadmap completion stats.</p>
+            <p className="text-blue-600 font-semibold">View Progress →</p>
           </div>
         </div>
 

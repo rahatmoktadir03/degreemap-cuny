@@ -8,6 +8,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import { RoadmapBuilderPage } from "./pages/RoadmapBuilderPage";
+import { JourneyDashboardPage } from "./pages/JourneyDashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -32,6 +33,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <RoadmapBuilderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/journey"
+            element={
+              <ProtectedRoute>
+                <JourneyDashboardPage />
               </ProtectedRoute>
             }
           />
