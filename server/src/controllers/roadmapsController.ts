@@ -127,4 +127,52 @@ export const roadmapsController = {
       res.status(500).json({ error: "Failed to fetch templates" });
     }
   },
+
+  // Get a public roadmap by share ID (no authentication required)
+  async getPublicRoadmap(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { shareId } = req.params;
+
+      if (!shareId) {
+        return res.status(400).json({ error: "Share ID is required" });
+      }
+
+      const roadmap = await roadmapsService.getPublicRoadmap(shareId);
+
+      if (!roadmap) {
+        return res.status(404).json({ error: "Roadmap not found" });
+      }
+
+      res.json({ success: true, data: roadmap });
+    } catch (error) {
+      console.error("Error fetching public roadmap:", error);
+      res.status(500).json({ error: "Failed to fetch roadmap" });
+    }
+  },
+
+  // Generate a share link for a roadmap (protected)
+  async generateShareLink(req: AuthenticatedRequest, res: Response) {
+    try {
+      if (!req.user?.id) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const { roadmapId } = req.body;
+
+      if (!roadmapId) {
+        return res.status(400).json({ error: "Roadmap ID is required" });
+      }
+
+      const shareId = await roadmapsService.generateShareId(
+        roadmapId,
+        req.user.id
+      );
+      const shareUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/roadmap/public/${shareId}`;
+
+      res.json({ success: true, data: { shareId, shareUrl } });
+    } catch (error) {
+      console.error("Error generating share link:", error);
+      res.status(500).json({ error: "Failed to generate share link" });
+    }
+  },
 };

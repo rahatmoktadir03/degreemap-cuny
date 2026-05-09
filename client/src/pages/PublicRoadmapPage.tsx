@@ -27,11 +27,11 @@ export const PublicRoadmapPage: React.FC = () => {
         setLoading(true);
         const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const response = await fetch(`${API_URL}/api/roadmaps/public/${shareId}`);
-        
+
         if (!response.ok) {
           throw new Error("Roadmap not found or has been deleted");
         }
-        
+
         const data = await response.json();
         setRoadmap(data.data || data);
       } catch (err) {
@@ -67,7 +67,8 @@ export const PublicRoadmapPage: React.FC = () => {
             {error || "Roadmap not found"}
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-            This roadmap link may have expired or been deleted. Please ask the owner to share it again.
+            This roadmap link may have expired or been deleted. Please ask the owner to share it
+            again.
           </p>
           <a
             href="/"
@@ -86,7 +87,9 @@ export const PublicRoadmapPage: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between mb-2">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">📋 {roadmap.title}</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+              📋 {roadmap.title}
+            </h1>
             <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-1">
               Shared Roadmap
               {roadmap.description && ` · ${roadmap.description}`}
@@ -119,7 +122,9 @@ export const PublicRoadmapPage: React.FC = () => {
       {/* Footer Info */}
       <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-3 text-xs lg:text-sm text-gray-600 dark:text-gray-400 flex justify-between items-center">
         <p>This is a read-only view of a shared roadmap</p>
-        <p>{roadmap.nodes?.length || 0} nodes · {roadmap.edges?.length || 0} connections</p>
+        <p>
+          {roadmap.nodes?.length || 0} nodes · {roadmap.edges?.length || 0} connections
+        </p>
       </div>
     </div>
   );

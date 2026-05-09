@@ -147,4 +147,41 @@ export const roadmapService = {
       throw error;
     }
   },
+
+  // Generate a share link for a roadmap
+  async generateShareLink(roadmapId: string) {
+    try {
+      const session = await supabase.auth.getSession();
+
+      const response = await fetch(`${API_URL}/api/roadmaps/share/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data.session?.access_token}`,
+        },
+        body: JSON.stringify({ roadmapId }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate share link");
+      return await response.json();
+    } catch (error) {
+      console.error("Error generating share link:", error);
+      throw error;
+    }
+  },
+
+  // Copy share link to clipboard
+  async copyShareLink(roadmapId: string) {
+    try {
+      const result = await this.generateShareLink(roadmapId);
+      if (result.success && result.data?.shareUrl) {
+        await navigator.clipboard.writeText(result.data.shareUrl);
+        return { success: true, url: result.data.shareUrl };
+      }
+      throw new Error("Failed to generate share URL");
+    } catch (error) {
+      console.error("Error copying share link:", error);
+      throw error;
+    }
+  },
 };

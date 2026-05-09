@@ -164,4 +164,41 @@ export const roadmapsService = {
       throw error;
     }
   },
+
+  // Get a roadmap by share_id (public endpoint)
+  async getPublicRoadmap(shareId: string) {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from("roadmaps")
+        .select("id, title, description, nodes, edges, created_at, updated_at")
+        .eq("share_id", shareId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error("Error fetching public roadmap:", error);
+      throw error;
+    }
+  },
+
+  // Generate a share ID for a roadmap (UUID)
+  async generateShareId(roadmapId: string, userId: string): Promise<string> {
+    try {
+      // Generate a UUID for the share link
+      const shareId = crypto.randomUUID();
+
+      const { error } = await supabaseAdmin
+        .from("roadmaps")
+        .update({ share_id: shareId })
+        .eq("id", roadmapId)
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      return shareId;
+    } catch (error) {
+      console.error("Error generating share ID:", error);
+      throw error;
+    }
+  },
 };

@@ -80,6 +80,7 @@ export interface Roadmap {
   edges: RoadmapEdge[];
   isTemplate: boolean;
   templateName?: string;
+  shareId?: string;
   createdAt: string;
   updatedAt: string;
 }

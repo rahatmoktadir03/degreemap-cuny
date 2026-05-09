@@ -162,8 +162,12 @@ export const RoadmapBuilderPage: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between mb-4 gap-4">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Roadmap Builder</h1>
-            <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-1">Create your personalized academic path</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+              Roadmap Builder
+            </h1>
+            <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-1">
+              Create your personalized academic path
+            </p>
           </div>
           <div className="flex gap-2">
             <DarkModeToggle />

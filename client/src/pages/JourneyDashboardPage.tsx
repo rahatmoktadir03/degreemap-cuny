@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
 import { DarkModeToggle } from "../components/DarkModeToggle";
+import { ShareButton } from "../components/ShareButton";
 import { roadmapService } from "../services/roadmapService";
 import type { Roadmap } from "../types/roadmap";
 import { ProgressCard } from "../components/journey/ProgressCard";
@@ -92,7 +93,9 @@ export const JourneyDashboardPage: React.FC = () => {
       <header className="bg-white dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">📅 My Journey</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              📅 My Journey
+            </h1>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
               Track your academic progress and roadmap completion
             </p>
@@ -113,7 +116,9 @@ export const JourneyDashboardPage: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Roadmap Selection */}
         <div className="mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">Your Roadmaps</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">
+            Your Roadmaps
+          </h2>
           {roadmapLoading ? (
             <p className="text-gray-600 dark:text-gray-400">Loading roadmaps...</p>
           ) : roadmaps.length === 0 ? (
@@ -141,7 +146,9 @@ export const JourneyDashboardPage: React.FC = () => {
                         : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-sky-300 dark:hover:border-sky-600 hover:shadow"
                     }`}
                   >
-                    <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 truncate">{roadmap.title}</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 truncate">
+                      {roadmap.title}
+                    </h3>
                     <div className="space-y-1 text-xs">
                       <p className="text-gray-600 dark:text-gray-400">
                         {progress.completedNodes}/{progress.totalNodes} courses
@@ -170,9 +177,9 @@ export const JourneyDashboardPage: React.FC = () => {
         {selectedRoadmap && (
           <>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">{selectedRoadmap.title}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{selectedRoadmap.title}</h2>
               {selectedRoadmap.description && (
-                <p className="text-gray-600 mb-4">{selectedRoadmap.description}</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">{selectedRoadmap.description}</p>
               )}
             </div>
 
@@ -213,29 +220,29 @@ export const JourneyDashboardPage: React.FC = () => {
               />
 
               {/* Quick Stats */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Stats</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Stats</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Total Courses</span>
-                    <span className="font-semibold text-gray-900">
+                    <span className="text-gray-600 dark:text-gray-400">Total Courses</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">
                       {calculateProgress(selectedRoadmap).totalNodes}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Total Credits</span>
-                    <span className="font-semibold text-gray-900">
+                    <span className="text-gray-600 dark:text-gray-400">Total Credits</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">
                       {calculateProgress(selectedRoadmap).totalCredits}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Credits Earned</span>
+                    <span className="text-gray-600 dark:text-gray-400">Credits Earned</span>
                     <span className="font-semibold text-green-600">
                       {calculateProgress(selectedRoadmap).completedCredits}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Credits Remaining</span>
+                    <span className="text-gray-600 dark:text-gray-400">Credits Remaining</span>
                     <span className="font-semibold text-amber-600">
                       {calculateProgress(selectedRoadmap).totalCredits -
                         calculateProgress(selectedRoadmap).completedCredits}
@@ -249,17 +256,18 @@ export const JourneyDashboardPage: React.FC = () => {
             <SemesterTimeline roadmap={selectedRoadmap} />
 
             {/* Action Buttons */}
-            <div className="bg-white rounded-lg shadow p-6 text-center">
-              <div className="flex gap-4 justify-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
                 <button
                   onClick={() => navigate(`/roadmap?id=${selectedRoadmap.id}`)}
-                  className="px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition font-medium"
+                  className="px-6 py-2 bg-sky-600 dark:bg-sky-700 text-white rounded-lg hover:bg-sky-700 dark:hover:bg-sky-600 transition font-medium text-sm whitespace-nowrap"
                 >
                   ✏️ Edit Roadmap
                 </button>
+                <ShareButton roadmapId={selectedRoadmap.id} roadmapTitle={selectedRoadmap.title} />
                 <button
                   onClick={() => navigate("/roadmap")}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+                  className="px-6 py-2 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition font-medium text-sm whitespace-nowrap"
                 >
                   ➕ Create New Roadmap
                 </button>
