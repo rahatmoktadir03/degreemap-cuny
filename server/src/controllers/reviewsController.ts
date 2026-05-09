@@ -1,6 +1,6 @@
 import { Response } from "express";
-import { AuthenticatedRequest } from "../middleware/auth";
-import { reviewsService } from "../services/reviewsService";
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { reviewsService } from "../services/reviewsService.js";
 
 export const reviewsController = {
   // Create a review for a school

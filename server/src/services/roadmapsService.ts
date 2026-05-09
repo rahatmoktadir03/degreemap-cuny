@@ -1,5 +1,5 @@
-import { supabaseAdmin } from "../supabase/client";
-import { Roadmap, RoadmapNode, RoadmapEdge } from "../types/roadmap";
+import { supabaseAdmin } from "../supabase/client.js";
+import { Roadmap, RoadmapNode, RoadmapEdge } from "../types/roadmap.js";
 
 export const roadmapsService = {
   // Create a new roadmap

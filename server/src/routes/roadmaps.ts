@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authenticateToken } from "../middleware/auth";
-import { roadmapsController } from "../controllers/roadmapsController";
+import { authenticateToken } from "../middleware/auth.js";
+import { roadmapsController } from "../controllers/roadmapsController.js";
 
 const router = Router();
 

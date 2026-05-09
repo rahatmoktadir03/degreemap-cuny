@@ -1,6 +1,6 @@
 import { Response } from "express";
-import { AuthenticatedRequest } from "../middleware/auth";
-import { advisorService } from "../services/advisorService";
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { advisorService } from "../services/advisorService.js";
 
 export const advisorController = {
   // Get list of students

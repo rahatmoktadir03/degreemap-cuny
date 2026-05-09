@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../supabase/client";
+import { supabaseAdmin } from "../supabase/client.js";
 
 export const reviewsService = {
   // Create a review for a school

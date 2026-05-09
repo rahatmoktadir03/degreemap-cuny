@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { AuthenticatedRequest } from "../middleware/auth";
-import { roadmapsService } from "../services/roadmapsService";
-import { RoadmapNode, RoadmapEdge } from "../types/roadmap";
+import { AuthenticatedRequest } from "../middleware/auth.js";
+import { roadmapsService } from "../services/roadmapsService.js";
+import { RoadmapNode, RoadmapEdge } from "../types/roadmap.js";
 
 export const roadmapsController = {
   // Create a new roadmap

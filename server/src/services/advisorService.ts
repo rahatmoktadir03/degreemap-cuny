@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../supabase/client";
+import { supabaseAdmin } from "../supabase/client.js";
 
 export const advisorService = {
   // Get list of students for an advisor (would be based on advisor assignment in real app)
