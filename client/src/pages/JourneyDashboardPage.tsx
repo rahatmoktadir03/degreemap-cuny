@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
+import { DarkModeToggle } from "../components/DarkModeToggle";
 import { roadmapService } from "../services/roadmapService";
 import type { Roadmap } from "../types/roadmap";
 import { ProgressCard } from "../components/journey/ProgressCard";
@@ -86,44 +87,47 @@ export const JourneyDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
+      <header className="bg-white dark:bg-gray-800 shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">📅 My Journey</h1>
-            <p className="text-gray-600 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">📅 My Journey</h1>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
               Track your academic progress and roadmap completion
             </p>
           </div>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-          >
-            ← Back to Dashboard
-          </button>
+          <div className="flex gap-2">
+            <DarkModeToggle />
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-sm whitespace-nowrap"
+            >
+              ← Back
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Roadmap Selection */}
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Your Roadmaps</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">Your Roadmaps</h2>
           {roadmapLoading ? (
-            <p className="text-gray-600">Loading roadmaps...</p>
+            <p className="text-gray-600 dark:text-gray-400">Loading roadmaps...</p>
           ) : roadmaps.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-              <p className="text-gray-600 mb-4">No roadmaps created yet</p>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sm:p-8 text-center">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">No roadmaps created yet</p>
               <button
                 onClick={() => navigate("/roadmap")}
-                className="px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition font-medium"
+                className="px-6 py-2 bg-sky-600 dark:bg-sky-700 text-white rounded-lg hover:bg-sky-700 dark:hover:bg-sky-600 transition font-medium"
               >
                 Create Your First Roadmap
               </button>
             </div>
           ) : (
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {roadmaps.map((roadmap) => {
                 const progress = calculateProgress(roadmap);
                 const isSelected = selectedRoadmap?.id === roadmap.id;
@@ -133,19 +137,19 @@ export const JourneyDashboardPage: React.FC = () => {
                     onClick={() => setSelectedRoadmap(roadmap)}
                     className={`p-4 rounded-lg border-2 transition text-left ${
                       isSelected
-                        ? "border-sky-600 bg-sky-50 shadow-md"
-                        : "border-gray-200 bg-white hover:border-sky-300 hover:shadow"
+                        ? "border-sky-600 bg-sky-50 dark:bg-gray-800 dark:border-sky-500 shadow-md"
+                        : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-sky-300 dark:hover:border-sky-600 hover:shadow"
                     }`}
                   >
-                    <h3 className="font-bold text-gray-900 text-sm mb-2">{roadmap.title}</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 truncate">{roadmap.title}</h3>
                     <div className="space-y-1 text-xs">
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         {progress.completedNodes}/{progress.totalNodes} courses
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         {progress.completedCredits}/{progress.totalCredits} credits
                       </p>
-                      <div className="w-full bg-gray-200 rounded h-2 mt-2">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-2 mt-2">
                         <div
                           className="bg-green-500 h-2 rounded transition-all"
                           style={{ width: `${progress.completionPercentage}%` }}
@@ -173,7 +177,7 @@ export const JourneyDashboardPage: React.FC = () => {
             </div>
 
             {/* Progress Cards Grid */}
-            <div className="grid md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-8">
               <ProgressCard
                 label="Completed"
                 value={calculateProgress(selectedRoadmap).completedNodes}
@@ -202,7 +206,7 @@ export const JourneyDashboardPage: React.FC = () => {
             </div>
 
             {/* Credits Tracker */}
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
               <CreditsTracker
                 completedCredits={calculateProgress(selectedRoadmap).completedCredits}
                 totalCredits={calculateProgress(selectedRoadmap).totalCredits}

@@ -47,7 +47,7 @@ const SchoolSearch: React.FC<SchoolSearchProps> = ({ schools, onFilter }) => {
   }, [searchTerm, selectedType, selectedBorough, handleFilter]);
 
   return (
-    <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-xl z-40 overflow-y-auto">
+    <div className="w-full lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-80 bg-white shadow-xl z-40 overflow-y-auto">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-600 to-secondary-600 p-6 text-white">
         <h2 className="text-2xl font-bold mb-2">🗺️ CUNY Explorer</h2>

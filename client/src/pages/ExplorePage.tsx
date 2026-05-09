@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import SchoolMap from "../components/SchoolMap";
 import SchoolSearch from "../components/SchoolSearch";
 import SchoolSidebar from "../components/SchoolSidebar";
+import { DarkModeToggle } from "../components/DarkModeToggle";
 import type { School } from "../types/school";
 import { fetchSchools } from "../services/schoolsService";
 
@@ -11,6 +12,8 @@ const ExplorePage: React.FC = () => {
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch schools on component mount
   useEffect(() => {
@@ -57,12 +60,40 @@ const ExplorePage: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-screen flex overflow-hidden bg-gray-100">
-      {/* Search Sidebar */}
-      <SchoolSearch schools={allSchools} onFilter={setFilteredSchools} />
+    <div className="w-full h-screen flex flex-col lg:flex-row overflow-hidden bg-gray-100 dark:bg-gray-900">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white p-4 flex justify-between items-center z-50">
+        <h1 className="text-lg font-bold">🗺️ CUNY Explorer</h1>
+        <div className="flex gap-2">
+          <DarkModeToggle />
+          <button
+            onClick={() => setSearchOpen(!searchOpen)}
+            className="p-2 hover:bg-primary-700 dark:hover:bg-primary-700 rounded transition"
+            title="Toggle search"
+          >
+            🔍
+          </button>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 hover:bg-primary-700 dark:hover:bg-primary-700 rounded transition"
+            title="Toggle details"
+          >
+            ℹ️
+          </button>
+        </div>
+      </div>
+
+      {/* Search Sidebar - Desktop always visible, Mobile toggle */}
+      <div
+        className={`w-full lg:w-80 bg-white dark:bg-gray-800 shadow-xl overflow-y-auto transition-all duration-300 ${
+          searchOpen ? "block" : "hidden lg:block"
+        } h-auto lg:h-full`}
+      >
+        <SchoolSearch schools={allSchools} onFilter={setFilteredSchools} />
+      </div>
 
       {/* Map Container */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden min-h-96 lg:min-h-screen">
         <SchoolMap
           schools={filteredSchools}
           selectedSchool={selectedSchool}
@@ -70,13 +101,21 @@ const ExplorePage: React.FC = () => {
         />
 
         {/* Results Counter */}
-        <div className="absolute bottom-6 left-96 bg-white px-4 py-2 rounded-lg shadow-md text-gray-700 font-semibold">
+        <div className="absolute bottom-6 left-4 lg:left-96 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 rounded-lg shadow-md font-semibold text-sm lg:text-base">
           {filteredSchools.length} campus{filteredSchools.length !== 1 ? "es" : ""} found
         </div>
       </div>
 
-      {/* School Details Sidebar */}
-      <SchoolSidebar school={selectedSchool} onClose={() => setSelectedSchool(null)} />
+      {/* School Details Sidebar - Desktop always visible, Mobile toggle */}
+      {selectedSchool && (
+        <div
+          className={`w-full lg:w-96 bg-white dark:bg-gray-800 shadow-xl overflow-y-auto transition-all duration-300 ${
+            sidebarOpen ? "block" : "hidden lg:block"
+          } h-auto lg:h-full`}
+        >
+          <SchoolSidebar school={selectedSchool} onClose={() => setSelectedSchool(null)} />
+        </div>
+      )}
     </div>
   );
 };

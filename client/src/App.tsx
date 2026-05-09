@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./store/AuthContext";
+import { DarkModeProvider } from "./store/DarkModeContext";
 import LandingPage from "./pages/LandingPage";
 import ExplorePage from "./pages/ExplorePage";
 import RegisterPage from "./pages/RegisterPage";
@@ -14,38 +15,40 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/explore" element={<ExplorePage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/roadmap"
-            element={
-              <ProtectedRoute>
-                <RoadmapBuilderPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/journey"
-            element={
-              <ProtectedRoute>
-                <JourneyDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </AuthProvider>
+      <DarkModeProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/explore" element={<ExplorePage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/roadmap"
+              element={
+                <ProtectedRoute>
+                  <RoadmapBuilderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/journey"
+              element={
+                <ProtectedRoute>
+                  <JourneyDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
+      </DarkModeProvider>
     </Router>
   );
 }
