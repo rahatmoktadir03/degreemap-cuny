@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import { RoadmapBuilderPage } from "./pages/RoadmapBuilderPage";
 import { JourneyDashboardPage } from "./pages/JourneyDashboardPage";
+import { PublicRoadmapPage } from "./pages/PublicRoadmapPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/roadmap/public/:shareId" element={<PublicRoadmapPage />} />
             <Route
               path="/dashboard"
               element={
