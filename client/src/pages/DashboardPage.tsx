@@ -88,12 +88,11 @@ const DashboardPage: React.FC = () => {
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {dashboardItems.map((item, idx) => (
-            {/* eslint-disable-next-line */}
             <div
               key={idx}
               onClick={() => navigate(item.path)}
               className="card card-hover group cursor-pointer transform hover:scale-105 transition-all duration-300 animate-slideInUp"
-              style={{ '--animation-delay': `${idx * 100}ms` } as React.CSSProperties}
+              style={{ "--animation-delay": `${idx * 100}ms` } as React.CSSProperties}
             >
               <div className="flex flex-col h-full">
                 <div
@@ -118,7 +117,11 @@ const DashboardPage: React.FC = () => {
 
         {/* Account Information Card */}
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-        <div className="animate-slideInUp" style={{ '--animation-delay': "300ms" } as React.CSSProperties} title="Welcome card">
+        <div
+          className="animate-slideInUp"
+          style={{ "--animation-delay": "300ms" } as React.CSSProperties}
+          title="Welcome card"
+        >
           <div className="card">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
               <span>👤</span> Account Information
