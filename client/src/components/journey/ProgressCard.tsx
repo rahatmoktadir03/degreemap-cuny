@@ -36,7 +36,7 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({
         {/* @ts-ignore - Dynamic width from props */}
         <div
           className="bg-white h-2 rounded transition-all progress-bar"
-          style={{ '--progress-width': `${percentage}%` } as React.CSSProperties}
+          style={{ "--progress-width": `${percentage}%` } as React.CSSProperties}
         ></div>
       </div>
     </div>

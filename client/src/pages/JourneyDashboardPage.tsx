@@ -167,7 +167,11 @@ export const JourneyDashboardPage: React.FC = () => {
                         {/* @ts-ignore - Dynamic width from state */}
                         <div
                           className="bg-green-500 h-2 rounded transition-all progress-bar"
-                          style={{ '--progress-width': `${progress.completionPercentage}%` } as React.CSSProperties}
+                          style={
+                            {
+                              "--progress-width": `${progress.completionPercentage}%`,
+                            } as React.CSSProperties
+                          }
                         ></div>
                       </div>
                       <p className="text-green-600 font-semibold">
