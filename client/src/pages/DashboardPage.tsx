@@ -20,20 +20,49 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  const dashboardItems = [
+    {
+      icon: "🧭",
+      title: "Build Your Roadmap",
+      desc: "Create a visual, node-based academic roadmap for your degree.",
+      path: "/roadmap",
+      color: "from-primary-500 to-primary-600",
+    },
+    {
+      icon: "🗺️",
+      title: "Explore CUNY Campuses",
+      desc: "View all 25 CUNY schools with detailed information about programs.",
+      path: "/explore",
+      color: "from-secondary-500 to-secondary-600",
+    },
+    {
+      icon: "📊",
+      title: "My Journey",
+      desc: "Track your progress and view roadmap completion stats.",
+      path: "/journey",
+      color: "from-blue-500 to-cyan-600",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow">
+      <header className="sticky top-0 z-40 backdrop-blur-lg bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">
-            📅 My Journey
-          </h1>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600 flex items-center justify-center">
+              <span className="text-lg">📅</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+              My Journey
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
             <DarkModeToggle />
             <button
               onClick={handleLogout}
               disabled={loading}
-              className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 dark:bg-red-700 dark:hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition text-sm whitespace-nowrap"
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 dark:bg-red-700 dark:hover:bg-red-600 text-white font-semibold rounded-lg transition text-sm whitespace-nowrap shadow-md hover:shadow-lg"
             >
               {loading ? "Signing out..." : "Sign Out"}
             </button>
@@ -42,81 +71,93 @@ const DashboardPage: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white rounded-lg shadow-lg p-6 sm:p-8 mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Welcome back! 👋</h2>
-          <p className="text-sm sm:text-base text-secondary-100 dark:text-secondary-200 break-all">
-            {user?.email}
-          </p>
+        <div className="mb-12 animate-slideInUp">
+          <div className="card bg-gradient-to-br from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 border-none text-white">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-2">Welcome back! 👋</h2>
+              <p className="text-primary-100 dark:text-primary-200 text-lg break-all">
+                {user?.email || "Loading..."}
+              </p>
+            </div>
+            <div className="absolute right-0 top-0 w-40 h-40 bg-white/5 rounded-full blur-3xl -z-10"></div>
+          </div>
         </div>
 
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* Start Building Roadmap */}
-          <div
-            onClick={() => navigate("/roadmap")}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-primary-600 hover:shadow-lg cursor-pointer transition"
-          >
-            <div className="text-4xl mb-4">🧭</div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-              Build Your Roadmap
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Create a visual, node-based academic roadmap for your degree.
-            </p>
-            <p className="text-primary-600 dark:text-primary-400 font-semibold">Get Started →</p>
-          </div>
-
-          {/* Explore Campuses */}
-          <div
-            onClick={() => navigate("/explore")}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-secondary-600 hover:shadow-lg cursor-pointer transition"
-          >
-            <div className="text-4xl mb-4">🗺️</div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-              Explore CUNY Campuses
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              View all 25 CUNY schools with detailed information about programs.
-            </p>
-            <p className="text-secondary-600 dark:text-secondary-400 font-semibold">Explore →</p>
-          </div>
-
-          {/* My Journey */}
-          <div
-            onClick={() => navigate("/journey")}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-blue-500 hover:shadow-lg cursor-pointer transition"
-          >
-            <div className="text-4xl mb-4">📊</div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">My Journey</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Track your progress and view roadmap completion stats.
-            </p>
-            <p className="text-blue-600 dark:text-blue-400 font-semibold">View Progress →</p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {dashboardItems.map((item, idx) => (
+            <div
+              key={idx}
+              onClick={() => navigate(item.path)}
+              className="card card-hover group cursor-pointer transform hover:scale-105 transition-all duration-300 animate-slideInUp"
+              style={{ animationDelay: `${idx * 100}ms` }}
+            >
+              <div className="flex flex-col h-full">
+                <div className={`inline-flex w-16 h-16 rounded-xl bg-gradient-to-br ${item.color} items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow">
+                  {item.desc}
+                </p>
+                <div className="flex items-center text-primary-600 dark:text-primary-400 font-semibold group-hover:gap-3 gap-2 transition-all duration-200">
+                  <span>Get Started</span>
+                  <span className="text-xl group-hover:translate-x-1 transition-transform duration-200">→</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* User Info Card */}
-        <div className="mt-12 bg-white dark:bg-gray-800 rounded-lg shadow p-8">
-          <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-            Account Information
-          </h3>
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-semibold">Email</p>
-              <p className="text-lg text-gray-800 dark:text-white">{user?.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 font-semibold">User ID</p>
-              <p className="text-sm font-mono text-gray-600">{user?.id}</p>
-            </div>
-            {session && (
+        {/* Account Information Card */}
+        <div className="animate-slideInUp" style={{ animationDelay: "300ms" }}>
+          <div className="card">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <span>👤</span> Account Information
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <p className="text-sm text-gray-600 font-semibold">Status</p>
-                <p className="text-lg text-green-600 font-semibold">✓ Authenticated</p>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                  Email Address
+                </p>
+                <p className="text-lg font-medium text-gray-900 dark:text-white break-all">
+                  {user?.email}
+                </p>
               </div>
-            )}
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                  Account Status
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <p className="text-lg font-medium text-green-600 dark:text-green-400">
+                    Active
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                  User ID
+                </p>
+                <p className="text-sm font-mono text-gray-600 dark:text-gray-400 break-all">
+                  {user?.id}
+                </p>
+              </div>
+              {session && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                    Authentication
+                  </p>
+                  <p className="text-lg font-medium text-blue-600 dark:text-blue-400">
+                    ✓ Verified
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
