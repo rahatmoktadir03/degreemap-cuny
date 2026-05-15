@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import authRouter from "./routes/auth.js";
 import schoolsRouter from "./routes/schools.js";
 import usersRouter from "./routes/users.js";
 import roadmapsRouter from "./routes/roadmaps.js";
@@ -19,6 +20,9 @@ app.use(express.json());
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ success: true, message: "DegreeMap server is running 🎓" });
 });
+
+// Auth Routes (No authentication required)
+app.use("/api/auth", authRouter);
 
 // Schools Routes
 app.use("/api/schools", schoolsRouter);
