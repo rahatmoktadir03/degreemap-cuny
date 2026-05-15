@@ -29,7 +29,17 @@ export default {
           900: "#0f2f2a",
         },
       },
+      animation: {
+        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+      },
+      keyframes: {
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-2px)" },
+        },
+      },
     },
   },
+  darkMode: "class",
   plugins: [],
 };
