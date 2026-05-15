@@ -36,10 +36,10 @@ const ExplorePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
         <div className="text-center">
-          <div className="text-4xl mb-4">🗺️</div>
-          <p className="text-lg font-semibold text-gray-700">Loading CUNY campuses...</p>
+          <div className="text-6xl mb-4 animate-bounce-subtle">🗺️</div>
+          <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">Loading CUNY campuses...</p>
         </div>
       </div>
     );
@@ -47,11 +47,11 @@ const ExplorePage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-center bg-white p-8 rounded-lg shadow-lg">
-          <div className="text-4xl mb-4">⚠️</div>
-          <p className="text-lg font-semibold text-gray-700 mb-4">{error}</p>
-          <p className="text-sm text-gray-500">
+      <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
+        <div className="card max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{error}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             Make sure the API server is running on http://localhost:5000
           </p>
         </div>
@@ -62,20 +62,23 @@ const ExplorePage: React.FC = () => {
   return (
     <div className="w-full h-screen flex flex-col lg:flex-row overflow-hidden bg-gray-100 dark:bg-gray-900">
       {/* Mobile Header */}
-      <div className="lg:hidden bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white p-4 flex justify-between items-center z-50">
-        <h1 className="text-lg font-bold">🗺️ CUNY Explorer</h1>
+      <div className="lg:hidden bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white p-4 flex justify-between items-center z-50 shadow-lg">
+        <h1 className="text-lg font-bold flex items-center gap-2">
+          <span className="text-2xl">🗺️</span>
+          <span>CUNY Explorer</span>
+        </h1>
         <div className="flex gap-2">
           <DarkModeToggle />
           <button
             onClick={() => setSearchOpen(!searchOpen)}
-            className="p-2 hover:bg-primary-700 dark:hover:bg-primary-700 rounded transition"
+            className="p-2 hover:bg-primary-700 dark:hover:bg-primary-700 rounded-lg transition duration-200"
             title="Toggle search"
           >
             🔍
           </button>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-primary-700 dark:hover:bg-primary-700 rounded transition"
+            className="p-2 hover:bg-primary-700 dark:hover:bg-primary-700 rounded-lg transition duration-200"
             title="Toggle details"
           >
             ℹ️
