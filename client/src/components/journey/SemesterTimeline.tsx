@@ -67,7 +67,7 @@ export const SemesterTimeline: React.FC<SemesterTimelineProps> = ({ roadmap }) =
                   </p>
                 </div>
                 {index < semesters.length - 1 && (
-                  <div className="ml-4 h-12 border-l-2 border-gray-300 absolute ml-0"></div>
+                  <div className="ml-4 h-12 border-l-2 border-gray-300 absolute"></div>
                 )}
               </div>
 

@@ -21,7 +21,7 @@ export const CourseNode: React.FC<CourseNodeProps> = ({ data, isConnectable }) =
   };
 
   return (
-    <div className="px-4 py-3 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-400 rounded-lg shadow-md w-48">
+    <div className="px-4 py-3 bg-linear-to-br from-blue-50 to-blue-100 border-2 border-blue-400 rounded-lg shadow-md w-48">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
 
       {isEditing ? (
@@ -44,6 +44,7 @@ export const CourseNode: React.FC<CourseNodeProps> = ({ data, isConnectable }) =
               placeholder="Credits"
             />
             <select
+              title="Select semester for course"
               value={semester}
               onChange={(e) => setSemester(e.target.value as Semester)}
               className="flex-1 px-2 py-1 border border-blue-300 rounded text-sm"

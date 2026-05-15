@@ -45,12 +45,12 @@ const DashboardPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
       {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur-lg bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-primary-600 to-secondary-600 flex items-center justify-center">
               <span className="text-lg">📅</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
@@ -74,7 +74,7 @@ const DashboardPage: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Welcome Section */}
         <div className="mb-12 animate-slideInUp">
-          <div className="card bg-gradient-to-br from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 border-none text-white">
+          <div className="card bg-linear-to-br from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 border-none text-white">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold mb-2">Welcome back! 👋</h2>
               <p className="text-primary-100 dark:text-primary-200 text-lg break-all">
@@ -96,14 +96,14 @@ const DashboardPage: React.FC = () => {
             >
               <div className="flex flex-col h-full">
                 <div
-                  className={`inline-flex w-16 h-16 rounded-xl bg-gradient-to-br ${item.color} items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300`}
+                  className={`inline-flex w-16 h-16 rounded-xl bg-linear-to-br ${item.color} items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300`}
                 >
                   {item.icon}
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
                   {item.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow">{item.desc}</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 grow">{item.desc}</p>
                 <div className="flex items-center text-primary-600 dark:text-primary-400 font-semibold group-hover:gap-3 gap-2 transition-all duration-200">
                   <span>Get Started</span>
                   <span className="text-xl group-hover:translate-x-1 transition-transform duration-200">
@@ -116,7 +116,8 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Account Information Card */}
-        <div className="animate-slideInUp" style={{ animationDelay: "300ms" }}>
+        {/* Dynamic animation delay - legitimate use of inline style */}
+        <div className="animate-slideInUp" style={{ animationDelay: "300ms" }} title="Welcome card">
           <div className="card">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
               <span>👤</span> Account Information

@@ -49,7 +49,7 @@ const SchoolSearch: React.FC<SchoolSearchProps> = ({ schools, onFilter }) => {
   return (
     <div className="w-full lg:fixed lg:left-0 lg:top-0 lg:h-full lg:w-80 bg-white shadow-xl z-40 overflow-y-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-secondary-600 p-6 text-white">
+      <div className="bg-linear-to-r from-primary-600 to-secondary-600 p-6 text-white">
         <h2 className="text-2xl font-bold mb-2">🗺️ CUNY Explorer</h2>
         <p className="text-secondary-100 text-sm">Explore all 25 CUNY campuses</p>
       </div>
@@ -72,6 +72,7 @@ const SchoolSearch: React.FC<SchoolSearchProps> = ({ schools, onFilter }) => {
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">School Type</label>
           <select
+            title="Filter schools by type: All Types, Senior Colleges, Graduate Institutions, or Community Colleges"
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value as SchoolType)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 transition"
@@ -94,6 +95,7 @@ const SchoolSearch: React.FC<SchoolSearchProps> = ({ schools, onFilter }) => {
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">Borough</label>
           <select
+            title="Filter schools by borough: Bronx, Brooklyn, Manhattan, Queens, or Staten Island"
             value={selectedBorough}
             onChange={(e) => setSelectedBorough(e.target.value as Borough)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 transition"

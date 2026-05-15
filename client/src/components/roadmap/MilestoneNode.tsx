@@ -17,7 +17,7 @@ export const MilestoneNode: React.FC<MilestoneNodeProps> = ({ data, isConnectabl
   };
 
   return (
-    <div className="px-4 py-3 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-400 rounded-lg shadow-md w-48">
+    <div className="px-4 py-3 bg-linear-to-br from-purple-50 to-purple-100 border-2 border-purple-400 rounded-lg shadow-md w-48">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
 
       {isEditing ? (

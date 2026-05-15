@@ -7,17 +7,14 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const [successMessage, setSuccessMessage] = useState<string | null>(
+    searchParams.get("registered") === "true"
+      ? "Account created successfully! Please log in with your credentials."
+      : null
+  );
   const { signIn, user } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  // Show success message if coming from register
-  useEffect(() => {
-    if (searchParams.get("registered") === "true") {
-      setSuccessMessage("Account created successfully! Please log in with your credentials.");
-    }
-  }, [searchParams]);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -47,17 +44,17 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-blue-950 dark:to-teal-950 flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-blue-950 dark:to-teal-950 flex items-center justify-center px-4 py-8">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary-400/20 to-transparent rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-secondary-400/20 to-transparent rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-primary-400/20 to-transparent rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-linear-to-tr from-secondary-400/20 to-transparent rounded-full blur-3xl -z-10"></div>
 
       <div className="w-full max-w-md animate-slideInUp">
         {/* Card */}
         <div className="card backdrop-blur-xl">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-block mb-4 p-3 bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-xl">
+            <div className="inline-block mb-4 p-3 bg-linear-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-xl">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -67,7 +64,7 @@ const LoginPage: React.FC = () => {
                 />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold bg-linear-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent mb-2">
               DegreeMap
             </h1>
             <p className="text-gray-600 dark:text-gray-400">Sign in to your account</p>
@@ -75,7 +72,7 @@ const LoginPage: React.FC = () => {
 
           {/* Success Message */}
           {successMessage && (
-            <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 animate-slideInDown">
+            <div className="mb-6 p-4 rounded-lg bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 animate-slideIn">
               <div className="flex items-start gap-3">
                 <span className="text-green-600 dark:text-green-400 text-xl mt-0.5">✓</span>
                 <p className="font-medium text-green-900 dark:text-green-300">{successMessage}</p>
@@ -85,7 +82,7 @@ const LoginPage: React.FC = () => {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 animate-slideInDown">
+            <div className="mb-6 p-4 rounded-lg bg-linear-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 animate-slideInDown">
               <div className="flex items-start gap-3">
                 <span className="text-red-600 dark:text-red-400 text-xl mt-0.5">✕</span>
                 <p className="font-medium text-red-900 dark:text-red-300">{error}</p>

@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-blue-950 dark:to-teal-950">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-blue-950 dark:to-teal-950">
       {/* Header/Navigation */}
       <header className="sticky top-0 z-50 backdrop-blur-lg bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+          <div className="text-2xl font-bold bg-linear-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
             DegreeMap
           </div>
           <div className="flex gap-3">
@@ -37,7 +37,7 @@ const LandingPage: React.FC = () => {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary-700 via-secondary-600 to-teal-600 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-linear-to-r from-primary-700 via-secondary-600 to-teal-600 bg-clip-text text-transparent">
             DegreeMap is Live
           </h1>
 

@@ -24,7 +24,7 @@ const SchoolSidebar: React.FC<SchoolSidebarProps> = ({ school, onClose }) => {
   return (
     <div className="w-full lg:fixed lg:right-0 lg:top-0 lg:h-full lg:w-96 bg-white dark:bg-gray-800 shadow-xl z-40 overflow-y-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 p-6 text-white">
+      <div className="bg-linear-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 p-6 text-white">
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-2xl font-bold mb-2">{school.name}</h2>

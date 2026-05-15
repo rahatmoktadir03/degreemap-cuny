@@ -25,7 +25,7 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({
   };
 
   return (
-    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-lg shadow p-6 text-white`}>
+    <div className={`bg-linear-to-br ${colorClasses[color]} rounded-lg shadow p-6 text-white`}>
       <p className="text-sm font-medium opacity-90">{label}</p>
       <p className="text-4xl font-bold mt-2">
         {value}
