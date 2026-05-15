@@ -59,7 +59,12 @@ const LoginPage: React.FC = () => {
           <div className="text-center mb-8">
             <div className="inline-block mb-4 p-3 bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-xl">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C6.5 6.253 2 10.753 2 16.5S6.5 26.747 12 26.747s10-4.5 10-10.247S17.5 6.253 12 6.253z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6.253v13m0-13C6.5 6.253 2 10.753 2 16.5S6.5 26.747 12 26.747s10-4.5 10-10.247S17.5 6.253 12 6.253z"
+                />
               </svg>
             </div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent mb-2">
@@ -164,7 +169,10 @@ const LoginPage: React.FC = () => {
         <div className="text-center mt-6">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Having trouble?{" "}
-            <a href="#" className="text-primary-600 dark:text-primary-400 font-semibold hover:underline">
+            <a
+              href="#"
+              className="text-primary-600 dark:text-primary-400 font-semibold hover:underline"
+            >
               Contact Support
             </a>
           </p>

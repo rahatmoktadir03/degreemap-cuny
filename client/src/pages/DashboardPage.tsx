@@ -95,18 +95,20 @@ const DashboardPage: React.FC = () => {
               style={{ animationDelay: `${idx * 100}ms` }}
             >
               <div className="flex flex-col h-full">
-                <div className={`inline-flex w-16 h-16 rounded-xl bg-gradient-to-br ${item.color} items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                <div
+                  className={`inline-flex w-16 h-16 rounded-xl bg-gradient-to-br ${item.color} items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300`}
+                >
                   {item.icon}
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
                   {item.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow">
-                  {item.desc}
-                </p>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow">{item.desc}</p>
                 <div className="flex items-center text-primary-600 dark:text-primary-400 font-semibold group-hover:gap-3 gap-2 transition-all duration-200">
                   <span>Get Started</span>
-                  <span className="text-xl group-hover:translate-x-1 transition-transform duration-200">→</span>
+                  <span className="text-xl group-hover:translate-x-1 transition-transform duration-200">
+                    →
+                  </span>
                 </div>
               </div>
             </div>
@@ -134,9 +136,7 @@ const DashboardPage: React.FC = () => {
                 </p>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-lg font-medium text-green-600 dark:text-green-400">
-                    Active
-                  </p>
+                  <p className="text-lg font-medium text-green-600 dark:text-green-400">Active</p>
                 </div>
               </div>
               <div>
@@ -152,9 +152,7 @@ const DashboardPage: React.FC = () => {
                   <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
                     Authentication
                   </p>
-                  <p className="text-lg font-medium text-blue-600 dark:text-blue-400">
-                    ✓ Verified
-                  </p>
+                  <p className="text-lg font-medium text-blue-600 dark:text-blue-400">✓ Verified</p>
                 </div>
               )}
             </div>

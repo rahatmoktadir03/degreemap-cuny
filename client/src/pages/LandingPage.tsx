@@ -36,13 +36,14 @@ const LandingPage: React.FC = () => {
               ✨ Plan Your Future with Confidence
             </span>
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary-700 via-secondary-600 to-teal-600 bg-clip-text text-transparent">
             DegreeMap is Live
           </h1>
-          
+
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Plan your CUNY degree visually. Explore campuses. Build your academic roadmap. Track your journey.
+            Plan your CUNY degree visually. Explore campuses. Build your academic roadmap. Track
+            your journey.
           </p>
 
           {/* Feature Grid */}
@@ -75,9 +76,7 @@ const LandingPage: React.FC = () => {
                 <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {feature.desc}
-                </p>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -102,7 +101,9 @@ const LandingPage: React.FC = () => {
 
       {/* Footer */}
       <footer className="px-6 py-12 border-t border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-        <p className="text-sm md:text-base">Built for CUNY students. Made with ❤️ by your coding team.</p>
+        <p className="text-sm md:text-base">
+          Built for CUNY students. Made with ❤️ by your coding team.
+        </p>
       </footer>
     </div>
   );

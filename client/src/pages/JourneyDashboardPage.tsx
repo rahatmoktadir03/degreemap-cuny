@@ -81,7 +81,9 @@ export const JourneyDashboardPage: React.FC = () => {
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-200 border-t-primary-600 dark:border-primary-800 dark:border-t-primary-500"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400 font-medium">Loading your journey...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400 font-medium">
+            Loading your journey...
+          </p>
         </div>
       </div>
     );

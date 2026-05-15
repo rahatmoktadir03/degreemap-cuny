@@ -39,7 +39,9 @@ const ExplorePage: React.FC = () => {
       <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
         <div className="text-center">
           <div className="text-6xl mb-4 animate-bounce-subtle">🗺️</div>
-          <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">Loading CUNY campuses...</p>
+          <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+            Loading CUNY campuses...
+          </p>
         </div>
       </div>
     );
