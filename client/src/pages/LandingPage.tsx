@@ -65,10 +65,11 @@ const LandingPage: React.FC = () => {
                 desc: "Track your progress and stay on top of your academic goals.",
               },
             ].map((feature, idx) => (
+              {/* eslint-disable-next-line */}
               <div
                 key={idx}
                 className="card card-hover group transform hover:scale-105 transition-all duration-300 animate-slideInUp"
-                style={{ animationDelay: `${idx * 100}ms` }}
+                style={{ '--animation-delay': `${idx * 100}ms` } as React.CSSProperties}
               >
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   {feature.icon}

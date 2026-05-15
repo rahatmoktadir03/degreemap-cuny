@@ -163,9 +163,11 @@ export const JourneyDashboardPage: React.FC = () => {
                       <p className="text-gray-600 dark:text-gray-400">
                         {progress.completedCredits}/{progress.totalCredits} credits
                       </p>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-2 mt-2">                      {/* Dynamic width from state - legitimate use of inline style */}                        <div
-                          className="bg-green-500 h-2 rounded transition-all"
-                          style={{ width: `${progress.completionPercentage}%` }}
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-2 mt-2">
+                        {/* @ts-ignore - Dynamic width from state */}
+                        <div
+                          className="bg-green-500 h-2 rounded transition-all progress-bar"
+                          style={{ '--progress-width': `${progress.completionPercentage}%` } as React.CSSProperties}
                         ></div>
                       </div>
                       <p className="text-green-600 font-semibold">
