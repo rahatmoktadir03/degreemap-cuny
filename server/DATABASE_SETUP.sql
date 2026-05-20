@@ -125,7 +125,7 @@ CREATE POLICY "Users can delete their own reviews" ON campus_reviews FOR DELETE 
 -- Note: Schools table should already exist from the seed script
 -- If it doesn't, create it:
 -- CREATE TABLE IF NOT EXISTS schools (
---   id TEXT PRIMARY KEY,
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 --   name TEXT NOT NULL,
 --   borough TEXT,
 --   type TEXT,
