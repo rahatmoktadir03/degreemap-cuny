@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import { X, Users, Calendar, Globe, PenTool } from "lucide-react";
 import type { School } from "../types/school";
 import { ReviewList } from "./ReviewList";
 import { SchoolReviewForm } from "./SchoolReviewForm";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import { useAuth } from "../store/AuthContext";
 
 interface SchoolSidebarProps {
@@ -30,12 +33,14 @@ const SchoolSidebar: React.FC<SchoolSidebarProps> = ({ school, onClose }) => {
             <h2 className="text-2xl font-bold mb-2">{school.name}</h2>
             <p className="text-secondary-100">{school.borough}</p>
           </div>
-          <button
+          <Button
             onClick={onClose}
-            className="text-2xl font-bold hover:text-secondary-100 transition"
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-white/20"
           >
-            ✕
-          </button>
+            <X className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 
@@ -48,35 +53,39 @@ const SchoolSidebar: React.FC<SchoolSidebarProps> = ({ school, onClose }) => {
       <div className="p-6 space-y-6">
         {/* Type Badge */}
         <div>
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-sm font-semibold text-white ${
+          <Badge
+            variant={
               school.type === "senior"
-                ? "bg-primary-600"
+                ? "default"
                 : school.type === "graduate"
-                  ? "bg-secondary-600"
-                  : "bg-blue-500"
-            }`}
+                  ? "secondary"
+                  : "outline"
+            }
           >
             {school.type === "senior"
               ? "Senior College"
               : school.type === "graduate"
                 ? "Graduate Institution"
                 : "Community College"}
-          </span>
+          </Badge>
         </div>
 
         {/* Key Stats */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold mb-1">
-              Enrollment
-            </p>
+            <div className="flex items-center gap-2 mb-1">
+              <Users className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold">Enrollment</p>
+            </div>
             <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
               {school.enrollment.toLocaleString()}
             </p>
           </div>
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold mb-1">Founded</p>
+            <div className="flex items-center gap-2 mb-1">
+              <Calendar className="h-4 w-4 text-secondary-600 dark:text-secondary-400" />
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold">Founded</p>
+            </div>
             <p className="text-2xl font-bold text-secondary-600 dark:text-secondary-400">
               {school.founded}
             </p>
@@ -88,35 +97,34 @@ const SchoolSidebar: React.FC<SchoolSidebarProps> = ({ school, onClose }) => {
           <h3 className="text-lg font-bold mb-3 text-gray-800 dark:text-white">Programs Offered</h3>
           <div className="flex flex-wrap gap-2">
             {school.programs.map((program, idx) => (
-              <span
-                key={idx}
-                className="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-200 px-3 py-1 rounded-full text-sm font-medium"
-              >
+              <Badge key={idx} variant="secondary" className="text-xs">
                 {program}
-              </span>
+              </Badge>
             ))}
           </div>
         </div>
 
         {/* Website Link */}
-        <a
-          href={school.website}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block w-full bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 text-white font-semibold py-3 px-4 rounded-lg text-center transition"
+        <Button
+          onClick={() => window.open(school.website, "_blank")}
+          variant="default"
+          className="w-full gap-2"
         >
-          Visit Campus Website →
-        </a>
+          <Globe className="h-4 w-4" />
+          Visit Campus Website
+        </Button>
 
         {/* Reviews Section */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
           {user && !showReviewForm && (
-            <button
+            <Button
               onClick={() => setShowReviewForm(true)}
-              className="w-full mb-6 px-4 py-2 bg-sky-600 dark:bg-sky-700 text-white rounded-lg hover:bg-sky-700 dark:hover:bg-sky-600 transition font-medium text-sm"
+              variant="outline"
+              className="w-full mb-6 gap-2"
             >
-              ✍️ Write a Review
-            </button>
+              <PenTool className="h-4 w-4" />
+              Write a Review
+            </Button>
           )}
 
           {showReviewForm && (

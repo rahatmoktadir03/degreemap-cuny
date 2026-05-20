@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { Share2, Check } from "lucide-react";
+import toast from "react-hot-toast";
+import { Button } from "./ui/button";
 
 interface ShareButtonProps {
   roadmapId: string;
@@ -19,28 +22,47 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ roadmapId, roadmapTitl
           text: `Check out my ${roadmapTitle} roadmap created on DegreeMap!`,
           url: shareUrl,
         });
+        toast.success("Roadmap shared successfully!");
       } else {
         // Fallback: copy to clipboard
         await navigator.clipboard.writeText(shareUrl);
         setCopied(true);
+        toast.success("Link copied to clipboard!");
         setTimeout(() => setCopied(false), 2000);
       }
     } catch (error) {
       console.error("Share failed:", error);
       // Fallback: copy to clipboard
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        toast.success("Link copied to clipboard!");
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        toast.error("Failed to share or copy link");
+      }
     }
   };
 
   return (
-    <button
+    <Button
       onClick={handleShare}
-      className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition font-medium text-sm whitespace-nowrap"
+      variant="default"
+      size="sm"
+      className="gap-2"
       title="Share this roadmap"
     >
-      {copied ? "✓ Copied!" : "🔗 Share"}
-    </button>
+      {copied ? (
+        <>
+          <Check className="h-4 w-4" />
+          Copied!
+        </>
+      ) : (
+        <>
+          <Share2 className="h-4 w-4" />
+          Share
+        </>
+      )}
+    </Button>
   );
 };
