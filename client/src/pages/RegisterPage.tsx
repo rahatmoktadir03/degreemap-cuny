@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { UserPlus, AlertCircle } from "lucide-react";
 import { useAuth } from "../store/AuthContext";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Card, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { PageTransition } from "../components/ui";
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -35,147 +40,140 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-blue-950 dark:to-teal-950 flex items-center justify-center px-4 py-8">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-primary-400/20 to-transparent rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-linear-to-tr from-secondary-400/20 to-transparent rounded-full blur-3xl -z-10"></div>
+    <PageTransition>
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-blue-950 dark:to-teal-950 flex items-center justify-center px-4 py-8">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-primary-400/20 to-transparent rounded-full blur-3xl -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-linear-to-tr from-secondary-400/20 to-transparent rounded-full blur-3xl -z-10"></div>
 
-      <div className="w-full max-w-md animate-slideInUp">
-        {/* Card */}
-        <div className="card backdrop-blur-xl">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-block mb-4 p-3 bg-linear-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 rounded-xl">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold bg-linear-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent mb-2">
-              DegreeMap
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">Create your account</p>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 rounded-lg bg-linear-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 animate-slideInDown">
-              <div className="flex items-start gap-3">
-                <span className="text-red-600 dark:text-red-400 text-xl mt-0.5">✕</span>
-                <p className="font-medium text-red-900 dark:text-red-300">{error}</p>
+        <div className="w-full max-w-md">
+          {/* Card */}
+          <Card className="backdrop-blur-xl border border-white/20 dark:border-white/10">
+            <CardHeader className="text-center space-y-4">
+              <div className="inline-flex w-12 h-12 rounded-lg bg-linear-to-br from-primary-600 to-secondary-600 items-center justify-center text-white mx-auto">
+                <UserPlus className="h-6 w-6" />
               </div>
-            </div>
-          )}
+              <div className="space-y-1">
+                <CardTitle className="text-3xl bg-linear-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+                  DegreeMap
+                </CardTitle>
+                <CardDescription className="text-base">Create your account</CardDescription>
+              </div>
+            </CardHeader>
 
-          {/* Form */}
-          <form onSubmit={handleRegister} className="space-y-5">
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="John Doe"
-                disabled={loading}
-                required
-                className="w-full"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                disabled={loading}
-                required
-                className="w-full"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••"
-                disabled={loading}
-                required
-                className="w-full"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                ✓ At least 6 characters required
-              </p>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full py-3 px-4 rounded-lg font-semibold text-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  Creating account...
-                </span>
-              ) : (
-                "Sign Up"
+            <div className="px-6 pb-6 space-y-6">
+              {/* Error Message */}
+              {error && (
+                <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className="font-medium text-red-900 dark:text-red-300">{error}</p>
+                  </div>
+                </div>
               )}
-            </button>
-          </form>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+              {/* Form */}
+              <form onSubmit={handleRegister} className="space-y-4">
+                {/* Name */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Full Name
+                  </label>
+                  <Input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="John Doe"
+                    disabled={loading}
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Email Address
+                  </label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    disabled={loading}
+                    required
+                  />
+                </div>
+
+                {/* Password */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Password
+                  </label>
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••"
+                    disabled={loading}
+                    required
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    ✓ At least 6 characters required
+                  </p>
+                </div>
+
+                {/* Submit Button */}
+                <Button type="submit" disabled={loading} size="lg" className="w-full mt-6">
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      Creating account...
+                    </span>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Sign Up
+                    </>
+                  )}
+                </Button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-3 bg-white dark:bg-slate-950 text-gray-600 dark:text-gray-400">
+                    Already have an account?
+                  </span>
+                </div>
+              </div>
+
+              {/* Login Link */}
+              <Link to="/login">
+                <Button variant="outline" size="lg" className="w-full">
+                  Sign In
+                </Button>
+              </Link>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                Already have an account?
-              </span>
-            </div>
+          </Card>
+
+          {/* Footer Link */}
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              By signing up, you agree to our{" "}
+              <a
+                href="#"
+                className="text-primary-600 dark:text-primary-400 font-semibold hover:underline"
+              >
+                Terms
+              </a>
+            </p>
           </div>
-
-          {/* Login Link */}
-          <Link
-            to="/login"
-            className="block w-full text-center py-2 px-4 rounded-lg font-semibold text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors duration-200"
-          >
-            Sign In
-          </Link>
-        </div>
-
-        {/* Footer Link */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            By signing up, you agree to our{" "}
-            <a
-              href="#"
-              className="text-primary-600 dark:text-primary-400 font-semibold hover:underline"
-            >
-              Terms
-            </a>
-          </p>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

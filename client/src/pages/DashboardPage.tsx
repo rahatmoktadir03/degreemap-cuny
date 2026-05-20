@@ -1,31 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Compass, Map, TrendingUp } from "lucide-react";
+import { Compass, Map, TrendingUp } from "lucide-react";
 import { useAuth } from "../store/AuthContext";
-import { DarkModeToggle } from "../components/DarkModeToggle";
 import { Button } from "../components/ui/button";
 import { PageTransition, StaggerContainer, StaggerItem } from "../components/ui";
-import { useToast } from "../hooks/useToast";
 
 const DashboardPage: React.FC = () => {
-  const { user, session, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const toast = useToast();
-
-  const handleLogout = async () => {
-    try {
-      setLoading(true);
-      await signOut();
-      toast.success("Signed out successfully!");
-      navigate("/");
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("Failed to sign out. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const dashboardItems = [
     {
@@ -54,35 +36,8 @@ const DashboardPage: React.FC = () => {
   return (
     <PageTransition>
       <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
-        {/* Header */}
-        <header className="sticky top-0 z-40 backdrop-blur-lg bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-linear-to-br from-primary-600 to-secondary-600 flex items-center justify-center">
-                <span className="text-lg">📅</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                My Journey
-              </h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <DarkModeToggle />
-              <Button
-                onClick={handleLogout}
-                disabled={loading}
-                variant="destructive"
-                size="sm"
-                className="gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                {loading ? "Signing out..." : "Sign Out"}
-              </Button>
-            </div>
-          </div>
-        </header>
-
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           {/* Welcome Section */}
           <StaggerContainer delayChildren={0.1}>
             <StaggerItem>

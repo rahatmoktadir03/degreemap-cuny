@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./store/AuthContext";
 import { DarkModeProvider } from "./store/DarkModeContext";
 import { Toaster } from "./components/ui/toaster";
+import Navbar from "./components/Navbar";
 import LandingPage from "./pages/LandingPage";
 import ExplorePage from "./pages/ExplorePage";
 import RegisterPage from "./pages/RegisterPage";
@@ -21,6 +22,7 @@ function App() {
       <DarkModeProvider>
         <AuthProvider>
           <Toaster />
+          <Navbar />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/explore" element={<ExplorePage />} />

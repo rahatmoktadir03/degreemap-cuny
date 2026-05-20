@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { AlertCircle, MapPin, Search } from "lucide-react";
 import SchoolMap from "../components/SchoolMap";
 import SchoolSearch from "../components/SchoolSearch";
 import SchoolSidebar from "../components/SchoolSidebar";
 import { DarkModeToggle } from "../components/DarkModeToggle";
+import { Card } from "../components/ui/card";
 import type { School } from "../types/school";
 import { fetchSchools } from "../services/schoolsService";
 
@@ -37,8 +39,8 @@ const ExplorePage: React.FC = () => {
   if (loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
-        <div className="text-center">
-          <div className="text-6xl mb-4 animate-bounce-subtle">🗺️</div>
+        <div className="text-center space-y-4">
+          <MapPin className="h-16 w-16 mx-auto text-primary-600 dark:text-primary-400 animate-pulse" />
           <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
             Loading CUNY campuses...
           </p>
@@ -49,14 +51,18 @@ const ExplorePage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
-        <div className="card max-w-md">
-          <div className="text-6xl mb-4">⚠️</div>
-          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{error}</p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            Make sure the API server is running on http://localhost:5000
-          </p>
-        </div>
+      <div className="w-full h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 p-4">
+        <Card className="max-w-md w-full">
+          <div className="flex flex-col items-center gap-4 p-6">
+            <AlertCircle className="h-12 w-12 text-red-600 dark:text-red-400" />
+            <div className="text-center space-y-2">
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">{error}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Make sure the API server is running on http://localhost:5000
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -66,7 +72,7 @@ const ExplorePage: React.FC = () => {
       {/* Mobile Header */}
       <div className="lg:hidden bg-linear-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white p-4 flex justify-between items-center z-50 shadow-lg">
         <h1 className="text-lg font-bold flex items-center gap-2">
-          <span className="text-2xl">🗺️</span>
+          <MapPin className="h-5 w-5" />
           <span>CUNY Explorer</span>
         </h1>
         <div className="flex gap-2">
@@ -76,7 +82,7 @@ const ExplorePage: React.FC = () => {
             className="p-2 hover:bg-primary-700 dark:hover:bg-primary-700 rounded-lg transition duration-200"
             title="Toggle search"
           >
-            🔍
+            <Search className="h-5 w-5" />
           </button>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
