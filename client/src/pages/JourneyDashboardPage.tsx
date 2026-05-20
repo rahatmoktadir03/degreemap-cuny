@@ -142,9 +142,7 @@ export const JourneyDashboardPage: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-400">Loading roadmaps...</p>
                 ) : roadmaps.length === 0 ? (
                   <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sm:p-8 text-center">
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      No roadmaps created yet
-                    </p>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">No roadmaps created yet</p>
                     <button
                       onClick={() => navigate("/roadmap")}
                       className="px-6 py-2 bg-sky-600 dark:bg-sky-700 text-white rounded-lg hover:bg-sky-700 dark:hover:bg-sky-600 transition font-medium"
@@ -214,8 +212,6 @@ export const JourneyDashboardPage: React.FC = () => {
                       </p>
                     )}
                   </div>
-                </StaggerItem>
-
                 </StaggerItem>
 
                 <StaggerItem>
