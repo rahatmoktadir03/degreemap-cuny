@@ -2,7 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Compass, Map, TrendingUp } from "lucide-react";
 import { useAuth } from "../store/AuthContext";
-import { Button } from "../components/ui/button";
 import { PageTransition, StaggerContainer, StaggerItem } from "../components/ui";
 
 const DashboardPage: React.FC = () => {
