@@ -1,35 +1,13 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { type ReactNode } from "react";
 
-interface PageTransitionProps {
-  children: React.ReactNode;
-}
+// Simple PageTransition wrapper - no animations, just renders children
+export const PageTransition: React.FC<{ children: ReactNode }> = ({ children }) => <>{children}</>;
 
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    y: 20,
-  },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut",
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    transition: {
-      duration: 0.3,
-      ease: "easeIn",
-    },
-  },
-};
+// Simple StaggerContainer wrapper - no animations
+export const StaggerContainer: React.FC<{
+  children: ReactNode;
+  delayChildren?: number;
+}> = ({ children }) => <>{children}</>;
 
-export const PageTransition: React.FC<PageTransitionProps> = ({ children }) => (
-  <motion.div initial="initial" animate="animate" exit="exit" variants={pageVariants}>
-    {children}
-  </motion.div>
-);
+// Simple StaggerItem wrapper - no animations
+export const StaggerItem: React.FC<{ children: ReactNode }> = ({ children }) => <>{children}</>;

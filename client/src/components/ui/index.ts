@@ -1,11 +1,11 @@
 // UI Components barrel export
-export { Button, buttonVariants } from "./button"
-export type { ButtonProps } from "./button"
+export { Button, buttonVariants } from "./button";
+export type { ButtonProps } from "./button";
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "./card"
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "./card";
 
-export { Badge, badgeVariants } from "./badge"
-export type { BadgeProps } from "./badge"
+export { Badge, badgeVariants } from "./badge";
+export type { BadgeProps } from "./badge";
 
 export {
   Dialog,
@@ -18,22 +18,17 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from "./dialog"
+} from "./dialog";
 
-export { Input } from "./input"
-export type { InputProps } from "./input"
+export { Input } from "./input";
+export type { InputProps } from "./input";
 
-export { Textarea } from "./textarea"
-export type { TextareaProps } from "./textarea"
+export { Textarea } from "./textarea";
+export type { TextareaProps } from "./textarea";
 
-export { Toaster } from "./toaster"
+export { Toaster } from "./toaster";
 
-export { Skeleton } from "./skeleton"
-export type { SkeletonProps } from "./skeleton"
+export { Skeleton } from "./skeleton";
+export type { SkeletonProps } from "./skeleton";
 
-export { AnimatedCard } from "./animated-card"
-export type { AnimatedCardProps } from "./animated-card"
-
-export { PageTransition } from "./page-transition"
-
-export { StaggerContainer, StaggerItem } from "./stagger-container"
+export { PageTransition, StaggerContainer, StaggerItem } from "./page-transition";

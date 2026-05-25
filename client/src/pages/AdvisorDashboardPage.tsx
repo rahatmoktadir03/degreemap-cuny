@@ -3,12 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
 import { DarkModeToggle } from "../components/DarkModeToggle";
 import type { Roadmap } from "../types/roadmap";
-import { roadmapService } from "../services/roadmapService";
 
 export const AdvisorDashboardPage: React.FC = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [students, setStudents] = useState<any[]>([]);
+  const [students] = useState<any[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
   const [studentRoadmaps, setStudentRoadmaps] = useState<Roadmap[]>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<Roadmap | null>(null);
@@ -21,24 +20,6 @@ export const AdvisorDashboardPage: React.FC = () => {
       navigate("/login");
     }
   }, [user, loading, navigate]);
-
-  // Load list of students (would come from backend endpoint)
-  const loadStudents = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/advisor/students`, {
-        headers: {
-          Authorization: `Bearer ${(await (await import("../services/supabase")).supabase.auth.getSession()).data.session?.access_token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data.data || []);
-      }
-    } catch (error) {
-      console.error("Error loading students:", error);
-    }
-  };
 
   // Load student's roadmaps
   const loadStudentRoadmaps = async (studentId: string) => {
@@ -220,12 +201,14 @@ export const AdvisorDashboardPage: React.FC = () => {
                         Courses & Milestones
                       </p>
                       <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {selectedRoadmap.nodes
-                          .filter((n) => ["course", "elective", "milestone"].includes(n.type))
+                        {(selectedRoadmap.nodes || [])
+                          .filter(
+                            (n) => n.type && ["course", "elective", "milestone"].includes(n.type)
+                          )
                           .map((node) => (
                             <button
-                              key={node.id}
-                              onClick={() => setSelectedNodeId(node.id)}
+                              key={node.id || "unknown"}
+                              onClick={() => setSelectedNodeId(node.id || "")}
                               className={`w-full text-left p-3 rounded-lg border-2 transition ${
                                 selectedNodeId === node.id
                                   ? "border-sky-600 bg-sky-50 dark:bg-gray-700 dark:border-sky-500"
