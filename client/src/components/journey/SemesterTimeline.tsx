@@ -117,7 +117,7 @@ export const SemesterTimeline: React.FC<SemesterTimelineProps> = ({ roadmap }) =
                     {coursesBySemester[semester].map((node) => {
                       const data = node.data as any;
                       return (
-                        <div key={node.id} className="flex-shrink-0 w-80">
+                        <div key={node.id} className="shrink-0 w-80">
                           <div
                             className={`p-4 rounded-lg border-2 h-full transition-all duration-200 hover:shadow-lg ${getStatusColor(
                               data.status

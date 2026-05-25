@@ -66,7 +66,7 @@ const RegisterPage: React.FC = () => {
               {error && (
                 <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                   <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                     <p className="font-medium text-red-900 dark:text-red-300">{error}</p>
                   </div>
                 </div>

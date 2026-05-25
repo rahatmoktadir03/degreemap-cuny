@@ -39,8 +39,15 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    // If custom className has a background, use 'ghost' variant to avoid conflicts
+    const effectiveVariant =
+      className?.includes("bg-") || className?.includes("gradient") ? "ghost" : variant;
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp
+        className={cn(buttonVariants({ variant: effectiveVariant, size, className }))}
+        ref={ref}
+        {...props}
+      />
     );
   }
 );

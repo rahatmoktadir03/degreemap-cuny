@@ -15,13 +15,13 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-slate-950 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-linear-to-r from-slate-950 to-slate-900 border-b border-blue-500/20 shadow-lg backdrop-blur-xl">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-8">
           {/* Logo */}
           <button
             onClick={() => navigate("/")}
-            className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400 hover:opacity-80 transition-opacity flex-shrink-0 whitespace-nowrap"
+            className="text-lg sm:text-xl font-bold bg-linear-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity shrink-0 whitespace-nowrap"
           >
             DegreeMap
           </button>
@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/dashboard")}
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap text-slate-300 hover:text-blue-400 hover:bg-blue-500/10"
                 >
                   Dashboard
                 </Button>
@@ -42,7 +42,7 @@ const Navbar: React.FC = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/explore")}
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap text-slate-300 hover:text-blue-400 hover:bg-blue-500/10"
                 >
                   Explore
                 </Button>
@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/roadmap")}
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap text-slate-300 hover:text-blue-400 hover:bg-blue-500/10"
                 >
                   Roadmap
                 </Button>
@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/journey")}
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap text-slate-300 hover:text-blue-400 hover:bg-blue-500/10"
                 >
                   Journey
                 </Button>
@@ -69,7 +69,7 @@ const Navbar: React.FC = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/explore")}
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap text-slate-300 hover:text-blue-400 hover:bg-blue-500/10"
                 >
                   Explore
                 </Button>
@@ -82,10 +82,9 @@ const Navbar: React.FC = () => {
             <DarkModeToggle />
             {user ? (
               <Button
-                variant="destructive"
                 size="sm"
                 onClick={handleLogout}
-                className="gap-1 flex-shrink-0 whitespace-nowrap"
+                className="gap-1 shrink-0 whitespace-nowrap rounded-lg bg-linear-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600"
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Logout</span>
@@ -93,17 +92,16 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <Button
-                  variant="outline"
                   size="sm"
                   onClick={() => navigate("/login")}
-                  className="hidden sm:inline-flex flex-shrink-0 whitespace-nowrap"
+                  className="hidden sm:inline-flex shrink-0 whitespace-nowrap rounded-lg border border-blue-500/50 text-blue-300 hover:bg-blue-500/20"
                 >
                   Login
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => navigate("/register")}
-                  className="flex-shrink-0 whitespace-nowrap"
+                  className="shrink-0 whitespace-nowrap rounded-lg bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
                 >
                   Sign Up
                 </Button>

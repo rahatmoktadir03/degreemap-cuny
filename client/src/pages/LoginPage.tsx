@@ -75,7 +75,7 @@ const LoginPage: React.FC = () => {
               {successMessage && (
                 <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
                   <div className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                     <p className="font-medium text-green-900 dark:text-green-300">
                       {successMessage}
                     </p>
@@ -87,7 +87,7 @@ const LoginPage: React.FC = () => {
               {error && (
                 <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                   <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                     <p className="font-medium text-red-900 dark:text-red-300">{error}</p>
                   </div>
                 </div>

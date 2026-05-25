@@ -1,5 +1,4 @@
-@tailwind base;
-@tailwind components;
+@import "tailwindcss/preflight";
 @tailwind utilities;
 
 :root {
@@ -59,14 +58,12 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(to bottom right, rgb(249, 250, 251), rgb(243, 244, 246));
-  color: rgb(17, 24, 39);
   transition: colors 300ms ease-in-out;
   line-height: 1.6;
 }
 
-.dark body {
-  background: linear-gradient(to bottom right, rgb(17, 24, 39), rgb(15, 23, 42));
+/* Dark mode body styles - let individual pages handle background */
+html.dark body {
   color: rgb(243, 244, 246);
 }
 
@@ -171,8 +168,8 @@ select:disabled {
   color: rgb(107, 114, 128);
 }
 
-/* Buttons */
-button,
+/* Buttons - only style raw button elements, not shadcn Button components */
+button:not([class*="bg-"]):not([class*="border"]),
 .btn {
   display: inline-flex;
   align-items: center;
