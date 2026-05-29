@@ -1,77 +1,213 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
-import { supabase } from "../services/supabase";
+import { supabase, hasSupabase } from "../services/supabase";
+
+type DemoUser = {
+  id: string;
+  email: string;
+  user_metadata?: Record<string, unknown>;
+};
 
 interface AuthContextType {
-  user: any;
-  session: Session | null;
+  user: DemoUser | null;
   loading: boolean;
-  signUp: (email: string, password: string, data?: any) => Promise<void>;
+  isDemoMode: boolean;
+  signUp: (email: string, password: string, data?: Record<string, unknown>) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const DEMO_USER_KEY = "degreemap.demoUser";
+const DEMO_ACCOUNTS_KEY = "degreemap.demoAccounts";
+
+type DemoAccount = { email: string; password: string; data?: Record<string, unknown> };
+
+function readAccounts(): DemoAccount[] {
+  try {
+    const raw = localStorage.getItem(DEMO_ACCOUNTS_KEY);
+    return raw ? (JSON.parse(raw) as DemoAccount[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeAccounts(accounts: DemoAccount[]) {
+  try {
+    localStorage.setItem(DEMO_ACCOUNTS_KEY, JSON.stringify(accounts));
+  } catch {
+    /* ignore quota errors */
+  }
+}
+
+function readDemoUser(): DemoUser | null {
+  try {
+    const raw = localStorage.getItem(DEMO_USER_KEY);
+    return raw ? (JSON.parse(raw) as DemoUser) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeDemoUser(user: DemoUser | null) {
+  try {
+    if (user) localStorage.setItem(DEMO_USER_KEY, JSON.stringify(user));
+    else localStorage.removeItem(DEMO_USER_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<DemoUser | null>(null);
   const [loading, setLoading] = useState(true);
+  // Start in demo mode if there's no Supabase client; we'll also fall back to demo on network errors.
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(!hasSupabase);
 
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    let cancelled = false;
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
+    const bootstrap = async () => {
+      // Always honor an existing demo session first.
+      const cached = readDemoUser();
+      if (cached) {
+        setUser(cached);
+        setLoading(false);
+        return;
+      }
 
-    return () => subscription?.unsubscribe();
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (cancelled) return;
+        const sessionUser = data.session?.user;
+        if (sessionUser) {
+          setUser({
+            id: sessionUser.id,
+            email: sessionUser.email ?? "",
+            user_metadata: sessionUser.user_metadata,
+          });
+        }
+      } catch {
+        // Network or config error — drop into demo mode.
+        setIsDemoMode(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+
+      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+        const u = session?.user;
+        setUser(
+          u ? { id: u.id, email: u.email ?? "", user_metadata: u.user_metadata } : null
+        );
+      });
+
+      return () => sub.subscription?.unsubscribe();
+    };
+
+    bootstrap();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const signUp = async (email: string, password: string, data?: any) => {
-    const { error } = await supabase.auth.signUp({
+  const demoSignUp = (email: string, password: string, data?: Record<string, unknown>) => {
+    const accounts = readAccounts();
+    if (accounts.some((a) => a.email.toLowerCase() === email.toLowerCase())) {
+      throw new Error("An account with this email already exists");
+    }
+    accounts.push({ email, password, data });
+    writeAccounts(accounts);
+  };
+
+  const demoSignIn = (email: string, password: string) => {
+    const accounts = readAccounts();
+    const match = accounts.find(
+      (a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password
+    );
+    if (!match) {
+      // Allow first-time login without prior sign up for demo convenience.
+      if (accounts.length === 0) {
+        demoSignUp(email, password);
+      } else {
+        throw new Error("Invalid email or password");
+      }
+    }
+    const u: DemoUser = {
+      id: `demo-${email}`,
       email,
-      password,
-      options: {
-        data: data || {},
-      },
-    });
-    if (error) throw error;
+      user_metadata: match?.data ?? {},
+    };
+    writeDemoUser(u);
+    setUser(u);
+  };
+
+  const signUp = async (email: string, password: string, data?: Record<string, unknown>) => {
+    if (!isDemoMode && supabase) {
+      try {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: data ?? {} },
+        });
+        if (error) throw error;
+        return;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (/fetch|network/i.test(msg)) {
+          setIsDemoMode(true);
+        } else {
+          throw err;
+        }
+      }
+    }
+    demoSignUp(email, password, data);
+    demoSignIn(email, password);
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
+    if (!isDemoMode && supabase) {
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        return;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (/fetch|network/i.test(msg)) {
+          setIsDemoMode(true);
+        } else {
+          throw err;
+        }
+      }
+    }
+    demoSignIn(email, password);
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    writeDemoUser(null);
+    setUser(null);
+    if (!isDemoMode && supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        /* ignore */
+      }
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, isDemoMode, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 };
