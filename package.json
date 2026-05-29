@@ -1,0 +1,21 @@
+{
+  "name": "degreemap-cuny",
+  "version": "1.0.0",
+  "description": "A comprehensive full-stack degree planning application built for CUNY students. DegreeMap helps students plan their academic roadmap, explore CUNY campuses, track progress, and share their plans with advisors.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rahatmoktadir03/degreemap-cuny.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rahatmoktadir03/degreemap-cuny/issues"
+  },
+  "homepage": "https://github.com/rahatmoktadir03/degreemap-cuny#readme"
+}
