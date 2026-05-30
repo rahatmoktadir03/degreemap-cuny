@@ -11,7 +11,15 @@ export interface Campus {
   description: string;
   website: string;
   notablePrograms: string[];
+  /** Approximate campus coordinates [lat, lng] */
+  coords: [number, number];
+  /** Background image (uses Picsum seed so each campus has a stable but distinct image) */
+  image: string;
+  /** Gradient stops for hero/card accent */
+  colors: { from: string; to: string };
 }
+
+const img = (id: string) => `https://picsum.photos/seed/cuny-${id}/1200/600`;
 
 export const cunyCampuses: Campus[] = [
   {
@@ -26,6 +34,9 @@ export const cunyCampuses: Campus[] = [
       "Renowned for business, public affairs, and the arts & sciences, Baruch consistently ranks among the most diverse and economically mobile colleges in America.",
     website: "https://www.baruch.cuny.edu",
     notablePrograms: ["Finance", "Accounting", "Public Affairs", "Marketing"],
+    coords: [40.7402, -73.9836],
+    image: img("baruch"),
+    colors: { from: "#1e3a8a", to: "#0ea5e9" },
   },
   {
     id: "brooklyn",
@@ -39,6 +50,9 @@ export const cunyCampuses: Campus[] = [
       "A liberal arts powerhouse known for excellent education, film, and performing arts programs on a historic Midwood campus.",
     website: "https://www.brooklyn.cuny.edu",
     notablePrograms: ["Film", "Education", "Computer Science", "Music"],
+    coords: [40.6306, -73.9554],
+    image: img("brooklyn"),
+    colors: { from: "#7c3aed", to: "#ec4899" },
   },
   {
     id: "ccny",
@@ -52,6 +66,9 @@ export const cunyCampuses: Campus[] = [
       "The flagship campus of CUNY, City College combines engineering, sciences, and the arts in a striking Gothic Harlem campus.",
     website: "https://www.ccny.cuny.edu",
     notablePrograms: ["Engineering", "Architecture", "Biology", "Computer Science"],
+    coords: [40.8198, -73.9494],
+    image: img("ccny"),
+    colors: { from: "#0f766e", to: "#0ea5e9" },
   },
   {
     id: "hunter",
@@ -65,6 +82,9 @@ export const cunyCampuses: Campus[] = [
       "Hunter is CUNY's largest college, known for the arts, sciences, nursing, social work, and a vibrant Upper East Side campus.",
     website: "https://hunter.cuny.edu",
     notablePrograms: ["Nursing", "Psychology", "English", "Social Work"],
+    coords: [40.7686, -73.9648],
+    image: img("hunter"),
+    colors: { from: "#b91c1c", to: "#f97316" },
   },
   {
     id: "jjay",
@@ -78,6 +98,9 @@ export const cunyCampuses: Campus[] = [
       "The nation's premier college for criminal justice, forensic science, fire science, and related fields in public service.",
     website: "https://www.jjay.cuny.edu",
     notablePrograms: ["Criminal Justice", "Forensic Science", "Public Administration"],
+    coords: [40.7706, -73.9883],
+    image: img("jjay"),
+    colors: { from: "#0c4a6e", to: "#0ea5e9" },
   },
   {
     id: "lehman",
@@ -91,6 +114,9 @@ export const cunyCampuses: Campus[] = [
       "The Bronx's senior liberal arts college, with strong programs in nursing, the arts, and bilingual education.",
     website: "https://www.lehman.edu",
     notablePrograms: ["Nursing", "Health Sciences", "Education", "Speech-Language"],
+    coords: [40.8731, -73.8932],
+    image: img("lehman"),
+    colors: { from: "#15803d", to: "#84cc16" },
   },
   {
     id: "queens",
@@ -104,6 +130,9 @@ export const cunyCampuses: Campus[] = [
       "A nationally recognized liberal arts and sciences college on a leafy 80-acre campus in Flushing, Queens.",
     website: "https://www.qc.cuny.edu",
     notablePrograms: ["Education", "Computer Science", "Music", "Business"],
+    coords: [40.7368, -73.8203],
+    image: img("queens"),
+    colors: { from: "#1d4ed8", to: "#06b6d4" },
   },
   {
     id: "csi",
@@ -117,6 +146,9 @@ export const cunyCampuses: Campus[] = [
       "CUNY's largest campus by acreage, offering a wide range of bachelor's and master's programs on a park-like Staten Island setting.",
     website: "https://www.csi.cuny.edu",
     notablePrograms: ["Nursing", "Engineering Science", "Business", "Psychology"],
+    coords: [40.6019, -74.1502],
+    image: img("csi"),
+    colors: { from: "#0e7490", to: "#22d3ee" },
   },
   {
     id: "yc",
@@ -130,6 +162,9 @@ export const cunyCampuses: Campus[] = [
       "A senior college in southeast Queens with strong health-sciences and aviation-management offerings.",
     website: "https://www.york.cuny.edu",
     notablePrograms: ["Aviation Management", "Health Sciences", "Pharmaceutical Science"],
+    coords: [40.7019, -73.7965],
+    image: img("yc"),
+    colors: { from: "#a16207", to: "#facc15" },
   },
   {
     id: "medgar",
@@ -143,6 +178,9 @@ export const cunyCampuses: Campus[] = [
       "A predominantly Black senior college in Central Brooklyn focused on social justice, the sciences, and community-engaged scholarship.",
     website: "https://www.mec.cuny.edu",
     notablePrograms: ["Nursing", "Public Administration", "Computer Science", "Education"],
+    coords: [40.6685, -73.9468],
+    image: img("medgar"),
+    colors: { from: "#7f1d1d", to: "#f59e0b" },
   },
   {
     id: "ny-tech",
@@ -156,6 +194,9 @@ export const cunyCampuses: Campus[] = [
       "The largest public college of technology in the Northeast, offering applied bachelor's and associate programs in downtown Brooklyn.",
     website: "https://www.citytech.cuny.edu",
     notablePrograms: ["Computer Systems", "Hospitality", "Architectural Tech", "Dental Hygiene"],
+    coords: [40.6957, -73.987],
+    image: img("nyct"),
+    colors: { from: "#0f172a", to: "#3b82f6" },
   },
   {
     id: "su",
@@ -169,6 +210,9 @@ export const cunyCampuses: Campus[] = [
       "CUNY's primary online college, serving adult learners with flexible bachelor's and master's degrees.",
     website: "https://sps.cuny.edu",
     notablePrograms: ["Business", "Disability Studies", "Communications", "Nursing (RN-BS)"],
+    coords: [40.7484, -73.984],
+    image: img("sps"),
+    colors: { from: "#3730a3", to: "#a855f7" },
   },
   {
     id: "bcc",
@@ -182,6 +226,9 @@ export const cunyCampuses: Campus[] = [
       "A historic community college whose campus — once part of NYU — features the famed Hall of Fame for Great Americans.",
     website: "https://www.bcc.cuny.edu",
     notablePrograms: ["Nursing", "Engineering Science", "Liberal Arts", "Radiologic Tech"],
+    coords: [40.8567, -73.9112],
+    image: img("bcc"),
+    colors: { from: "#166534", to: "#22c55e" },
   },
   {
     id: "bmcc",
@@ -195,6 +242,9 @@ export const cunyCampuses: Campus[] = [
       "CUNY's largest community college, serving lower Manhattan with associate degrees across business, the arts, and the sciences.",
     website: "https://www.bmcc.cuny.edu",
     notablePrograms: ["Business", "Computer Science", "Nursing", "Video Arts & Tech"],
+    coords: [40.7173, -74.0119],
+    image: img("bmcc"),
+    colors: { from: "#1e40af", to: "#60a5fa" },
   },
   {
     id: "hcc",
@@ -208,6 +258,9 @@ export const cunyCampuses: Campus[] = [
       "A bilingual, Hispanic-serving community college on the South Bronx waterfront, named for Eugenio María de Hostos.",
     website: "https://www.hostos.cuny.edu",
     notablePrograms: ["Nursing", "Radiologic Technology", "Dental Hygiene", "Public Policy"],
+    coords: [40.8186, -73.9276],
+    image: img("hostos"),
+    colors: { from: "#9f1239", to: "#fb7185" },
   },
   {
     id: "kbcc",
@@ -221,6 +274,9 @@ export const cunyCampuses: Campus[] = [
       "Set on a beachfront campus in Manhattan Beach, Kingsborough is known for tourism, marine biology, and culinary arts.",
     website: "https://www.kbcc.cuny.edu",
     notablePrograms: ["Culinary Arts", "Tourism", "Marine Biology", "Nursing"],
+    coords: [40.5786, -73.9354],
+    image: img("kbcc"),
+    colors: { from: "#0e7490", to: "#facc15" },
   },
   {
     id: "lacc",
@@ -234,6 +290,9 @@ export const cunyCampuses: Campus[] = [
       "A nationally recognized community college in Long Island City known for innovation, ePortfolios, and career-aligned programs.",
     website: "https://www.laguardia.edu",
     notablePrograms: ["Business Administration", "Nursing", "Engineering Science", "Liberal Arts"],
+    coords: [40.7437, -73.9377],
+    image: img("laguardia"),
+    colors: { from: "#1e3a8a", to: "#22d3ee" },
   },
   {
     id: "qbcc",
@@ -247,6 +306,9 @@ export const cunyCampuses: Campus[] = [
       "A community college in Bayside, Queens, with strong STEM, nursing, and visual & performing arts programs.",
     website: "https://www.qcc.cuny.edu",
     notablePrograms: ["Nursing", "Engineering Science", "Digital Art", "Business"],
+    coords: [40.7549, -73.7592],
+    image: img("qbcc"),
+    colors: { from: "#5b21b6", to: "#c084fc" },
   },
   {
     id: "guttman",
@@ -260,6 +322,9 @@ export const cunyCampuses: Campus[] = [
       "CUNY's newest community college, designed from the ground up for high graduation rates and small, structured cohorts.",
     website: "https://guttman.cuny.edu",
     notablePrograms: ["Liberal Arts", "Business", "Information Technology", "Urban Studies"],
+    coords: [40.7548, -73.9837],
+    image: img("guttman"),
+    colors: { from: "#065f46", to: "#34d399" },
   },
   {
     id: "gradcenter",
@@ -273,6 +338,9 @@ export const cunyCampuses: Campus[] = [
       "CUNY's principal doctorate-granting institution, hosting world-class research in the humanities, social sciences, and sciences.",
     website: "https://www.gc.cuny.edu",
     notablePrograms: ["PhD Programs", "Data Science", "Cognitive Neuroscience", "Economics"],
+    coords: [40.7486, -73.9839],
+    image: img("gc"),
+    colors: { from: "#312e81", to: "#a855f7" },
   },
   {
     id: "law",
@@ -286,6 +354,9 @@ export const cunyCampuses: Campus[] = [
       "A public-interest law school in Long Island City consistently ranked #1 nationally for clinical training.",
     website: "https://www.law.cuny.edu",
     notablePrograms: ["Juris Doctor", "Public Interest Law", "Clinical Programs"],
+    coords: [40.7494, -73.9387],
+    image: img("law"),
+    colors: { from: "#7c2d12", to: "#fb923c" },
   },
   {
     id: "med",
@@ -299,6 +370,9 @@ export const cunyCampuses: Campus[] = [
       "Housed at City College, CUNY Med trains primary-care physicians from underrepresented backgrounds through a combined BS/MD pipeline.",
     website: "https://www.ccny.cuny.edu/csom",
     notablePrograms: ["BS/MD Program", "Physician Assistant", "Biomedical Sciences"],
+    coords: [40.8197, -73.9485],
+    image: img("med"),
+    colors: { from: "#9d174d", to: "#f472b6" },
   },
   {
     id: "sph",
@@ -312,6 +386,9 @@ export const cunyCampuses: Campus[] = [
       "A leading school of public health on East Harlem's 'health row,' focused on health equity and urban populations.",
     website: "https://sph.cuny.edu",
     notablePrograms: ["MPH", "DrPH", "Epidemiology", "Health Policy"],
+    coords: [40.7949, -73.9476],
+    image: img("sph"),
+    colors: { from: "#155e75", to: "#22d3ee" },
   },
   {
     id: "journ",
@@ -325,6 +402,9 @@ export const cunyCampuses: Campus[] = [
       "The only publicly funded graduate school of journalism in the Northeast, with an emphasis on accessible, high-quality training.",
     website: "https://www.journalism.cuny.edu",
     notablePrograms: ["MA Journalism", "Engagement Journalism", "Spanish-language Journalism"],
+    coords: [40.7536, -73.9844],
+    image: img("journ"),
+    colors: { from: "#374151", to: "#9ca3af" },
   },
   {
     id: "labor",
@@ -338,6 +418,9 @@ export const cunyCampuses: Campus[] = [
       "Offers bachelor's and master's programs centered on labor studies, urban studies, and worker education.",
     website: "https://slu.cuny.edu",
     notablePrograms: ["Labor Studies", "Urban Studies", "Labor Relations"],
+    coords: [40.7493, -73.9789],
+    image: img("labor"),
+    colors: { from: "#831843", to: "#ec4899" },
   },
 ];
 
@@ -346,3 +429,6 @@ export const campusTypes: CampusType[] = [
   "Community College",
   "Graduate / Professional",
 ];
+
+export const getCampusById = (id: string): Campus | undefined =>
+  cunyCampuses.find((c) => c.id === id);

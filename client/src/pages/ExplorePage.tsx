@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
-import { ExternalLink, MapPin, Search, Users, GraduationCap } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ExternalLink, List, Map as MapIcon, MapPin, Search, Users, GraduationCap } from "lucide-react";
 import { cunyCampuses, campusTypes, type Campus, type CampusType } from "../data/cunyCampuses";
+import CampusMap from "../components/CampusMap";
 
 const typeStyles: Record<CampusType, string> = {
   "Senior College":
@@ -15,6 +17,7 @@ const ExplorePage = () => {
   const [query, setQuery] = useState("");
   const [activeType, setActiveType] = useState<CampusType | "All">("All");
   const [activeBorough, setActiveBorough] = useState<string>("All");
+  const [view, setView] = useState<"grid" | "map">("grid");
 
   const boroughs = useMemo(
     () => ["All", ...Array.from(new Set(cunyCampuses.map((c) => c.borough)))],
@@ -48,12 +51,12 @@ const ExplorePage = () => {
           </h1>
           <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300">
             Browse every senior college, community college, and graduate school across the City
-            University of New York.
+            University of New York — on a map or in a list.
           </p>
         </div>
 
         {/* Search + filters */}
-        <div className="card-surface rounded-2xl p-4 sm:p-5 shadow-sm mb-8 animate-fade-in-up">
+        <div className="card-surface rounded-2xl p-4 sm:p-5 shadow-sm mb-6 animate-fade-in-up">
           <div className="flex flex-col lg:flex-row gap-3 lg:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -80,20 +83,44 @@ const ExplorePage = () => {
               ))}
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {boroughs.map((b) => (
+          <div className="mt-3 flex flex-wrap gap-2 items-center justify-between">
+            <div className="flex flex-wrap gap-2">
+              {boroughs.map((b) => (
+                <button
+                  key={b}
+                  onClick={() => setActiveBorough(b)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+                    activeBorough === b
+                      ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white"
+                      : "bg-transparent text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-400"
+                  }`}
+                >
+                  {b}
+                </button>
+              ))}
+            </div>
+            <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
               <button
-                key={b}
-                onClick={() => setActiveBorough(b)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
-                  activeBorough === b
-                    ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white"
-                    : "bg-transparent text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-400"
+                onClick={() => setView("grid")}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold ${
+                  view === "grid"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300"
                 }`}
               >
-                {b}
+                <List className="h-3.5 w-3.5" /> Grid
               </button>
-            ))}
+              <button
+                onClick={() => setView("map")}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border-l border-slate-200 dark:border-slate-700 ${
+                  view === "map"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                }`}
+              >
+                <MapIcon className="h-3.5 w-3.5" /> Map
+              </button>
+            </div>
           </div>
         </div>
 
@@ -105,8 +132,9 @@ const ExplorePage = () => {
           </span>
         </div>
 
-        {/* Campus grid */}
-        {filtered.length === 0 ? (
+        {view === "map" ? (
+          <CampusMap campuses={filtered} height="520px" />
+        ) : filtered.length === 0 ? (
           <div className="card-surface rounded-2xl p-12 text-center">
             <p className="text-lg font-semibold">No campuses match your filters</p>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -116,7 +144,8 @@ const ExplorePage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map((c) => (
-              <article
+              <Link
+                to={`/schools/${c.id}`}
                 key={c.id}
                 className="group card-surface rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
               >
@@ -160,15 +189,21 @@ const ExplorePage = () => {
                   ))}
                 </div>
 
-                <a
-                  href={c.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline self-start"
-                >
-                  Visit website <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </article>
+                <div className="mt-5 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-blue-600 dark:text-blue-300 inline-flex items-center gap-1">
+                    View details →
+                  </span>
+                  <a
+                    href={c.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-xs inline-flex items-center gap-1 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  >
+                    Website <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              </Link>
             ))}
           </div>
         )}

@@ -1,5 +1,130 @@
 # Complete Build Changes - Changelog
 
+## 2026-05-30 — Phase 6: Planned feature backfill
+
+Audit-driven implementation pass to close the gap between what the MDs in `/mds`
+promised and what was actually shipped. Everything in this section is
+frontend-only and runs entirely in the browser — no backend, no Supabase
+project required.
+
+### Added
+
+- **react-leaflet + leaflet** — interactive `OpenStreetMap` campus map on
+  `/explore` (toggleable Grid/Map view) and on each school detail page.
+  Colored divIcon markers per campus type, auto-fit bounds, popups link to the
+  campus detail page.
+- **All 25 CUNY campuses enriched** in
+  `src/data/cunyCampuses.ts` with `coords` (lat/lng), `image`, and `colors`
+  fields so the map and the new hero/banner UI both have real data.
+- **`/schools/:id` campus detail page** with a gradient hero, at-a-glance
+  stats, programs, an embedded single-campus map, nearby-campus sidebar, and a
+  local "Rate this school" review system (1–5 stars + free-text body, persisted
+  via `localStorage` under `degreemap.reviews.<campus-id>`).
+- **React Flow node-based roadmap builder** replacing the old semester list.
+  Four node types — `course`, `milestone`, `elective`, `goal` — each with
+  custom `RoadmapNode` rendering, drag-to-reposition, connect-by-handle edges,
+  selection inspector (label, credits, semester, notes, status), Add-node
+  toolbar, MiniMap, Controls, and Background grid. Status options:
+  `planned` | `in-progress` | `complete`, reflected by node styling and a
+  status dot.
+- **Template roadmaps** in `src/data/roadmapTemplates.ts` — three starter
+  templates (BS Computer Science @ Hunter, BS Nursing @ Hunter, BBA Finance @
+  Baruch). Each loads via `/roadmap/tpl-<id>` and forks into a new user roadmap
+  on save.
+- **Roadmap persistence by id** with a new
+  `src/services/roadmapStore.ts` module exposing
+  `listRoadmaps`, `getRoadmap`, `getRoadmapByShareToken`, `saveRoadmap`,
+  `deleteRoadmap`, `generateShareToken`, `generateRoadmapId`. Roadmaps are
+  stored under `degreemap.roadmaps.item.<id>` keyed off a per-roadmap UUID-ish
+  id plus a stable share token index.
+- **Share links** — every roadmap gets a `shareToken` at creation. The
+  Builder header has a `Share` button that copies
+  `/share/<token>` to the clipboard. The new `SharedRoadmapPage` renders a
+  read-only React Flow view (no panning lock; nodes are non-draggable and the
+  inspector is hidden).
+- **`/roadmap/:id` editing route** is now wired end-to-end — opens an existing
+  saved roadmap, a template (`tpl-…`), or a fresh draft if the id is unknown.
+- **Recharts on `My Journey`**: a stacked credits-per-semester `BarChart` and
+  a credits-by-status donut `PieChart` (complete / in-progress / planned /
+  remaining), both driven by the user's actual active roadmap. Falls back to
+  empty-state copy when no roadmap exists.
+- **Profile fields** (`school`, `major`) on the Register page and editable
+  from the Dashboard. New `updateProfile(data)` method on `AuthContext`
+  persists to demo storage and forwards to Supabase
+  `auth.updateUser({ data })` when online.
+- **Advisor drill-down** at `/advisor/:studentId` — student snapshot
+  (credits / GPA / expected grad / major), advisor notes, and a per-student
+  comment thread persisted in `localStorage`
+  (`degreemap.advisor.comments.<student-id>`). Students extracted into
+  `src/data/advisorStudents.ts`.
+- **Dashboard wired to real data** — credit counts, roadmap count, and the
+  "My roadmaps" list are pulled from `roadmapStore`, with delete + open
+  actions and template chips for quick starts.
+
+### Changed
+
+- `App.tsx` adds five new routes: `/schools/:id`, `/share/:token`,
+  `/roadmap/:id`, `/advisor/:studentId`. Toaster moved to `top-right`.
+- `AuthContext` now exposes `updateProfile` and stores `user_metadata` for the
+  demo user.
+- Register page submits `{ school, major }` as profile metadata at sign-up.
+
+### Dependencies
+
+- `leaflet@^1.9`, `react-leaflet@4.2.1` (React 18 compatible)
+- `reactflow@11.11.4`
+- `recharts@2.12.7`
+- `@types/leaflet` (dev)
+
+Installed with `--legacy-peer-deps` due to upstream React-version pins in some
+packages. No code in the app relies on those peer mismatches.
+
+### Files added
+
+- `src/components/CampusMap.tsx`
+- `src/components/roadmap/RoadmapNode.tsx`
+- `src/data/roadmapTemplates.ts`
+- `src/data/advisorStudents.ts`
+- `src/services/roadmapStore.ts`
+- `src/pages/SchoolDetailPage.tsx`
+- `src/pages/SharedRoadmapPage.tsx`
+
+### Files materially rewritten
+
+- `src/pages/ExplorePage.tsx` (grid/map toggle, click-through to detail page)
+- `src/pages/RoadmapBuilderPage.tsx` (React Flow, templates, save, share)
+- `src/pages/JourneyDashboardPage.tsx` (Recharts ring + bar chart)
+- `src/pages/DashboardPage.tsx` (real roadmap data, profile form)
+- `src/pages/AdvisorDashboardPage.tsx` (roster + detail view with comments)
+- `src/pages/RegisterPage.tsx` (school + major fields)
+- `src/data/cunyCampuses.ts` (coords/image/colors + `getCampusById`)
+- `src/store/AuthContext.tsx` (`updateProfile`)
+- `src/App.tsx` (new routes)
+
+### Verified
+
+- `npm run build` — `tsc -b && vite build` → ✓ no TypeScript errors
+- `npm run dev` — all new routes return HTTP 200:
+  `/`, `/explore`, `/schools/hunter`, `/roadmap-builder`
+
+### Intentionally NOT in this pass
+
+These items in the MDs require external infrastructure and were left for a
+future "real backend" phase:
+
+- Express API server on `:5000` and the corresponding Supabase Postgres
+  schema (`profiles`, `schools`, `roadmaps`, `roadmap_nodes`, `roadmap_edges`,
+  RLS policies, JWT middleware).
+- Production deployment (Vercel + Render/Railway).
+- Server-side roadmap sharing — current share links only resolve in the
+  author's browser since roadmaps live in `localStorage`. The
+  `SharedRoadmapPage` explains this in its empty state.
+- "Ideas Parking Lot" items from `IMPLEMENTATION.md` (GPA simulator,
+  RateMyProfessor integration, events board, peer discovery feed, AI course
+  recommendations).
+
+---
+
 ## Build Date: May 29, 2026
 
 ### DELETED

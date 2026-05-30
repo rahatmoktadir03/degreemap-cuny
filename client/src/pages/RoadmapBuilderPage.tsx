@@ -1,239 +1,425 @@
-import { useMemo, useState } from "react";
-import { Plus, X, GripVertical, Trash2, Save } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import ReactFlow, {
+  Background,
+  Controls,
+  MiniMap,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
+  type Connection,
+  type Edge,
+  type EdgeChange,
+  type Node,
+  type NodeChange,
+  type ReactFlowInstance,
+} from "reactflow";
+import "reactflow/dist/style.css";
 import toast from "react-hot-toast";
+import {
+  BookOpen,
+  Check,
+  Copy,
+  Flag,
+  Plus,
+  Save,
+  Sparkles,
+  Target,
+  Trash2,
+  Trophy,
+} from "lucide-react";
+import RoadmapNode from "../components/roadmap/RoadmapNode";
+import {
+  roadmapTemplates,
+  type RoadmapNodeData,
+  type RoadmapNodeStatus,
+  type RoadmapNodeType,
+  getTemplateById,
+} from "../data/roadmapTemplates";
+import {
+  generateRoadmapId,
+  generateShareToken,
+  getRoadmap,
+  saveRoadmap,
+  type StoredRoadmap,
+} from "../services/roadmapStore";
 
-type Course = { id: string; code: string; title: string; credits: number };
-type Semester = { id: string; name: string; courses: Course[] };
+const nodeTypes = { roadmap: RoadmapNode };
 
-const seedSemesters: Semester[] = [
-  {
-    id: "s1",
-    name: "Fall 2025",
-    courses: [
-      { id: "c1", code: "CSCI 127", title: "Intro to Computer Science", credits: 3 },
-      { id: "c2", code: "MATH 150", title: "Calculus I", credits: 4 },
-      { id: "c3", code: "ENG 120", title: "Expository Writing", credits: 3 },
-    ],
+const newNode = (
+  id: string,
+  type: RoadmapNodeType,
+  position: { x: number; y: number }
+): Node<RoadmapNodeData> => ({
+  id,
+  type: "roadmap",
+  position,
+  data: {
+    label: type === "course" ? "New Course" : type === "milestone" ? "New Milestone" : type === "elective" ? "Elective" : "Career Goal",
+    credits: type === "course" || type === "elective" ? 3 : undefined,
+    status: "planned",
+    type,
   },
-  {
-    id: "s2",
-    name: "Spring 2026",
-    courses: [
-      { id: "c4", code: "CSCI 135", title: "Software Design", credits: 3 },
-      { id: "c5", code: "MATH 155", title: "Calculus II", credits: 4 },
-    ],
-  },
-  {
-    id: "s3",
-    name: "Fall 2026",
-    courses: [],
-  },
+});
+
+const typeButtons: { type: RoadmapNodeType; label: string; icon: typeof BookOpen; cls: string }[] = [
+  { type: "course", label: "Course", icon: BookOpen, cls: "bg-blue-500" },
+  { type: "milestone", label: "Milestone", icon: Flag, cls: "bg-purple-500" },
+  { type: "elective", label: "Elective", icon: Target, cls: "bg-amber-500" },
+  { type: "goal", label: "Goal", icon: Trophy, cls: "bg-emerald-500" },
 ];
 
-const uid = () => Math.random().toString(36).slice(2, 9);
+const statusOptions: RoadmapNodeStatus[] = ["planned", "in-progress", "complete"];
 
 const RoadmapBuilderPage = () => {
-  const [semesters, setSemesters] = useState<Semester[]>(seedSemesters);
-  const [newCourse, setNewCourse] = useState<Record<string, { code: string; title: string; credits: string }>>({});
+  const navigate = useNavigate();
+  const { id: routeId } = useParams();
+  const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
 
-  const totalCredits = useMemo(
-    () => semesters.reduce((sum, s) => sum + s.courses.reduce((a, c) => a + c.credits, 0), 0),
-    [semesters]
-  );
+  const [roadmapId, setRoadmapId] = useState<string>("");
+  const [shareToken, setShareToken] = useState<string>("");
+  const [title, setTitle] = useState("My CUNY Roadmap");
+  const [nodes, setNodes] = useState<Node<RoadmapNodeData>[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const nextIdRef = useRef(1);
 
-  const addSemester = () => {
-    setSemesters((prev) => [
-      ...prev,
-      { id: uid(), name: `Semester ${prev.length + 1}`, courses: [] },
-    ]);
-  };
-
-  const removeSemester = (id: string) =>
-    setSemesters((prev) => prev.filter((s) => s.id !== id));
-
-  const renameSemester = (id: string, name: string) =>
-    setSemesters((prev) => prev.map((s) => (s.id === id ? { ...s, name } : s)));
-
-  const addCourse = (semId: string) => {
-    const draft = newCourse[semId];
-    if (!draft?.code?.trim() || !draft?.title?.trim()) {
-      toast.error("Course code and title are required");
+  // Load existing roadmap or template, or start fresh
+  useEffect(() => {
+    if (!routeId) {
+      setRoadmapId(generateRoadmapId());
+      setShareToken(generateShareToken());
+      setNodes([]);
+      setEdges([]);
       return;
     }
-    const credits = Number(draft.credits || 3);
-    setSemesters((prev) =>
-      prev.map((s) =>
-        s.id === semId
-          ? {
-              ...s,
-              courses: [
-                ...s.courses,
-                { id: uid(), code: draft.code.trim(), title: draft.title.trim(), credits },
-              ],
-            }
-          : s
-      )
-    );
-    setNewCourse((prev) => ({ ...prev, [semId]: { code: "", title: "", credits: "3" } }));
+    if (routeId.startsWith("tpl-")) {
+      const tpl = getTemplateById(routeId);
+      if (tpl) {
+        setRoadmapId(generateRoadmapId());
+        setShareToken(generateShareToken());
+        setTitle(`${tpl.title} (from template)`);
+        setNodes(tpl.nodes.map((n) => ({ ...n, position: { ...n.position } })));
+        setEdges(tpl.edges.map((e) => ({ ...e })));
+        toast.success(`Loaded template: ${tpl.title}`);
+        return;
+      }
+    }
+    const stored = getRoadmap(routeId);
+    if (stored) {
+      setRoadmapId(stored.id);
+      setShareToken(stored.shareToken);
+      setTitle(stored.title);
+      setNodes(stored.nodes);
+      setEdges(stored.edges);
+      return;
+    }
+    // Unknown id — treat as new
+    setRoadmapId(routeId);
+    setShareToken(generateShareToken());
+  }, [routeId]);
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
+  );
+  const onConnect = useCallback(
+    (conn: Connection) => setEdges((eds) => addEdge({ ...conn, animated: false }, eds)),
+    []
+  );
+
+  const addNodeOfType = (type: RoadmapNodeType) => {
+    const id = `n-${Date.now().toString(36)}-${nextIdRef.current++}`;
+    const pos = rfInstance
+      ? rfInstance.screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 })
+      : { x: Math.random() * 300, y: Math.random() * 300 };
+    setNodes((nds) => [...nds, newNode(id, type, pos)]);
+    setSelectedNodeId(id);
   };
 
-  const removeCourse = (semId: string, courseId: string) =>
-    setSemesters((prev) =>
-      prev.map((s) =>
-        s.id === semId ? { ...s, courses: s.courses.filter((c) => c.id !== courseId) } : s
+  const selectedNode = useMemo(
+    () => nodes.find((n) => n.id === selectedNodeId) ?? null,
+    [nodes, selectedNodeId]
+  );
+
+  const updateSelected = (patch: Partial<RoadmapNodeData>) => {
+    if (!selectedNodeId) return;
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === selectedNodeId ? { ...n, data: { ...n.data, ...patch } } : n
       )
     );
+  };
+
+  const deleteSelected = () => {
+    if (!selectedNodeId) return;
+    setNodes((nds) => nds.filter((n) => n.id !== selectedNodeId));
+    setEdges((eds) => eds.filter((e) => e.source !== selectedNodeId && e.target !== selectedNodeId));
+    setSelectedNodeId(null);
+  };
 
   const handleSave = () => {
+    if (!roadmapId) return;
+    const roadmap: StoredRoadmap = {
+      id: roadmapId,
+      title,
+      shareToken,
+      nodes,
+      edges,
+      updatedAt: new Date().toISOString(),
+    };
+    saveRoadmap(roadmap);
+    if (!routeId || routeId.startsWith("tpl-")) {
+      navigate(`/roadmap/${roadmapId}`, { replace: true });
+    }
+    toast.success("Roadmap saved");
+  };
+
+  const copyShareLink = async () => {
+    const url = `${window.location.origin}/share/${shareToken}`;
     try {
-      localStorage.setItem("degreemap.roadmap", JSON.stringify(semesters));
-      toast.success("Roadmap saved");
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied");
     } catch {
-      toast.error("Could not save");
+      toast.error("Copy failed — link: " + url);
     }
   };
 
+  // Stats
+  const totalCredits = useMemo(
+    () => nodes.reduce((sum, n) => sum + (n.data.credits ?? 0), 0),
+    [nodes]
+  );
+  const completedCredits = useMemo(
+    () =>
+      nodes
+        .filter((n) => n.data.status === "complete")
+        .reduce((sum, n) => sum + (n.data.credits ?? 0), 0),
+    [nodes]
+  );
+
   return (
-    <div className="bg-hero-gradient">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 animate-fade-in-up">
-          <div>
+    <div className="bg-hero-gradient min-h-[calc(100vh-4rem)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
+          <div className="flex-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
               Roadmap Builder
             </p>
-            <h1 className="mt-1 text-3xl sm:text-4xl font-extrabold">
-              Build your <span className="text-gradient">degree path</span>
-            </h1>
-            <p className="mt-2 text-slate-600 dark:text-slate-400">
-              Plan semester by semester. Total credits planned:{" "}
-              <strong className="text-slate-900 dark:text-white">{totalCredits}</strong>.
+            <input
+              aria-label="Roadmap title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="mt-1 text-2xl sm:text-3xl font-extrabold border-transparent! bg-transparent! p-0! focus:shadow-none! w-full"
+            />
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {totalCredits} planned cr · {completedCredits} completed cr · drag the canvas, connect
+              handles, and click a node to edit.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={addSemester}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-white dark:hover:bg-slate-800 font-semibold transition-colors"
+              onClick={copyShareLink}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-white dark:hover:bg-slate-800 text-sm font-semibold"
             >
-              <Plus className="h-4 w-4" /> Add semester
+              <Copy className="h-4 w-4" /> Share
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md"
             >
               <Save className="h-4 w-4" /> Save
             </button>
           </div>
         </div>
 
-        {/* Semesters */}
-        <div className="mt-8 grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {semesters.map((sem) => {
-            const credits = sem.courses.reduce((a, c) => a + c.credits, 0);
-            const draft = newCourse[sem.id] ?? { code: "", title: "", credits: "3" };
-            return (
-              <div key={sem.id} className="card-surface rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <input
-                    aria-label="Semester name"
-                    placeholder="Semester name"
-                    value={sem.name}
-                    onChange={(e) => renameSemester(sem.id, e.target.value)}
-                    className="font-bold text-lg border-transparent! bg-transparent! p-0! focus:shadow-none! focus:border-blue-500!"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeSemester(sem.id)}
-                    className="p-1.5 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                    aria-label="Remove semester"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {sem.courses.length} courses · {credits} credits
-                </p>
+        {/* Templates strip — only shown when canvas is empty */}
+        {nodes.length === 0 && (
+          <div className="card-surface rounded-2xl p-5 shadow-sm mb-5">
+            <p className="text-sm font-semibold inline-flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-blue-500" /> Start from a template
+            </p>
+            <div className="mt-3 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {roadmapTemplates.map((t) => (
+                <button
+                  type="button"
+                  key={t.id}
+                  onClick={() => navigate(`/roadmap/${t.id}`)}
+                  className="text-left rounded-xl border border-slate-200 dark:border-slate-700 p-4 hover:border-blue-400 hover:shadow-md transition-all"
+                >
+                  <p className="font-semibold">{t.title}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{t.campus}</p>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t.summary}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
-                <div className="mt-4 space-y-2">
-                  {sem.courses.length === 0 && (
-                    <p className="text-xs italic text-slate-400">No courses yet.</p>
-                  )}
-                  {sem.courses.map((c) => (
-                    <div
-                      key={c.id}
-                      className="group flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2"
-                    >
-                      <GripVertical className="h-4 w-4 text-slate-300 dark:text-slate-600 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">
-                          {c.code} <span className="text-slate-500 dark:text-slate-400 font-normal">· {c.title}</span>
-                        </p>
-                      </div>
-                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
-                        {c.credits} cr
-                      </span>
+        {/* Canvas + side panel */}
+        <div className="grid lg:grid-cols-[1fr_320px] gap-4">
+          {/* Canvas */}
+          <div className="card-surface rounded-2xl shadow-sm overflow-hidden" style={{ height: "70vh" }}>
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mr-1">
+                Add:
+              </span>
+              {typeButtons.map((b) => (
+                <button
+                  type="button"
+                  key={b.type}
+                  onClick={() => addNodeOfType(b.type)}
+                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-blue-400"
+                >
+                  <span className={`inline-flex w-4 h-4 rounded-sm ${b.cls} items-center justify-center`}>
+                    <b.icon className="h-2.5 w-2.5 text-white" />
+                  </span>
+                  {b.label}
+                </button>
+              ))}
+              <span className="ml-auto text-xs text-slate-400 hidden sm:inline">
+                Drag nodes · connect handles · ⌫ to delete selection
+              </span>
+            </div>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onInit={setRfInstance}
+              onNodeClick={(_, n) => setSelectedNodeId(n.id)}
+              onPaneClick={() => setSelectedNodeId(null)}
+              nodeTypes={nodeTypes}
+              fitView
+              defaultEdgeOptions={{ style: { stroke: "#94a3b8", strokeWidth: 2 } }}
+            >
+              <Background gap={20} size={1} color="#cbd5e1" />
+              <MiniMap pannable zoomable className="bg-white! dark:bg-slate-800!" />
+              <Controls />
+            </ReactFlow>
+          </div>
+
+          {/* Inspector */}
+          <aside className="card-surface rounded-2xl p-5 shadow-sm h-fit">
+            <h3 className="font-bold text-sm uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Inspector
+            </h3>
+            {!selectedNode ? (
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                Click a node on the canvas to edit it. Use the buttons above to add new nodes.
+              </p>
+            ) : (
+              <div className="mt-3 space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    Label
+                  </label>
+                  <input
+                    value={selectedNode.data.label}
+                    onChange={(e) => updateSelected({ label: e.target.value })}
+                    aria-label="Node label"
+                    placeholder="Node label"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      Credits
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={12}
+                      value={selectedNode.data.credits ?? 0}
+                      onChange={(e) => updateSelected({ credits: Number(e.target.value) })}
+                      aria-label="Credits"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      Semester
+                    </label>
+                    <input
+                      value={selectedNode.data.semester ?? ""}
+                      onChange={(e) => updateSelected({ semester: e.target.value })}
+                      placeholder="e.g. Fall 2025"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    Notes
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={selectedNode.data.notes ?? ""}
+                    onChange={(e) => updateSelected({ notes: e.target.value })}
+                    aria-label="Notes"
+                    placeholder="Optional notes"
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    Status
+                  </p>
+                  <div className="grid grid-cols-3 gap-1">
+                    {statusOptions.map((s) => (
                       <button
                         type="button"
-                        onClick={() => removeCourse(sem.id, c.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-slate-400 hover:text-red-500 transition"
-                        aria-label="Remove course"
+                        key={s}
+                        onClick={() => updateSelected({ status: s })}
+                        className={`px-2 py-1.5 rounded-md text-xs font-semibold capitalize border transition-colors ${
+                          selectedNode.data.status === s
+                            ? s === "complete"
+                              ? "bg-emerald-500 text-white border-emerald-500"
+                              : s === "in-progress"
+                                ? "bg-blue-500 text-white border-blue-500"
+                                : "bg-slate-600 text-white border-slate-600"
+                            : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                        }`}
                       >
-                        <X className="h-3.5 w-3.5" />
+                        {s === "complete" && <Check className="inline h-3 w-3 mr-1" />}
+                        {s.replace("-", " ")}
                       </button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-
-                {/* Add course */}
-                <div className="mt-4 grid grid-cols-12 gap-2">
-                  <input
-                    value={draft.code}
-                    onChange={(e) =>
-                      setNewCourse((prev) => ({
-                        ...prev,
-                        [sem.id]: { ...draft, code: e.target.value },
-                      }))
-                    }
-                    placeholder="CODE"
-                    className="col-span-4 text-sm"
-                  />
-                  <input
-                    value={draft.title}
-                    onChange={(e) =>
-                      setNewCourse((prev) => ({
-                        ...prev,
-                        [sem.id]: { ...draft, title: e.target.value },
-                      }))
-                    }
-                    placeholder="Course title"
-                    className="col-span-6 text-sm"
-                  />
-                  <input
-                    value={draft.credits}
-                    onChange={(e) =>
-                      setNewCourse((prev) => ({
-                        ...prev,
-                        [sem.id]: { ...draft, credits: e.target.value },
-                      }))
-                    }
-                    placeholder="cr"
-                    type="number"
-                    min={1}
-                    max={6}
-                    className="col-span-2 text-sm"
-                  />
+                <button
+                  type="button"
+                  onClick={deleteSelected}
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-500/25"
+                >
+                  <Trash2 className="h-4 w-4" /> Delete node
+                </button>
+              </div>
+            )}
+            <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
+                Quick add
+              </p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {typeButtons.map((b) => (
                   <button
                     type="button"
-                    onClick={() => addCourse(sem.id)}
-                    className="col-span-12 inline-flex items-center justify-center gap-1.5 mt-1 px-3 py-2 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                    key={b.type}
+                    onClick={() => addNodeOfType(b.type)}
+                    className="inline-flex items-center gap-1.5 justify-center px-2 py-1.5 rounded-md text-xs font-semibold border border-slate-200 dark:border-slate-700 hover:border-blue-400"
                   >
-                    <Plus className="h-3.5 w-3.5" /> Add course
+                    <Plus className="h-3 w-3" /> {b.label}
                   </button>
-                </div>
+                ))}
               </div>
-            );
-          })}
+            </div>
+          </aside>
         </div>
       </div>
     </div>

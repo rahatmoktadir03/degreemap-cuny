@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, GraduationCap, Mail, Lock, Loader2, CheckCircle2 } from "lucide-react";
+import { Sparkles, GraduationCap, Mail, Lock, Loader2, CheckCircle2, School } from "lucide-react";
 import { useAuth } from "../store/AuthContext";
+import { cunyCampuses } from "../data/cunyCampuses";
 import toast from "react-hot-toast";
 
 const perks = [
@@ -16,6 +17,8 @@ const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [school, setSchool] = useState("");
+  const [major, setMajor] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +33,7 @@ const RegisterPage = () => {
     }
     setLoading(true);
     try {
-      await signUp(email, password);
+      await signUp(email, password, { school, major });
       toast.success(
         isDemoMode ? "Account created locally — welcome!" : "Account created! Check your email."
       );
@@ -120,6 +123,36 @@ const RegisterPage = () => {
                   className="pl-9!"
                   required
                   minLength={6}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Home campus</label>
+                <div className="relative">
+                  <School className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  <select
+                    aria-label="Home campus"
+                    value={school}
+                    onChange={(e) => setSchool(e.target.value)}
+                    className="pl-9!"
+                  >
+                    <option value="">— Pick —</option>
+                    {cunyCampuses.map((c) => (
+                      <option key={c.id} value={c.shortName}>
+                        {c.shortName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Major</label>
+                <input
+                  value={major}
+                  onChange={(e) => setMajor(e.target.value)}
+                  placeholder="e.g. CS, Nursing"
                 />
               </div>
             </div>

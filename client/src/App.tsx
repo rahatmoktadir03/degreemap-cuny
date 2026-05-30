@@ -9,9 +9,11 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import ExplorePage from "./pages/ExplorePage";
+import SchoolDetailPage from "./pages/SchoolDetailPage";
 import RoadmapBuilderPage from "./pages/RoadmapBuilderPage";
 import JourneyDashboardPage from "./pages/JourneyDashboardPage";
 import AdvisorDashboardPage from "./pages/AdvisorDashboardPage";
+import SharedRoadmapPage from "./pages/SharedRoadmapPage";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/explore" element={<ExplorePage />} />
+              <Route path="/schools/:id" element={<SchoolDetailPage />} />
+              <Route path="/share/:token" element={<SharedRoadmapPage />} />
 
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
@@ -32,10 +36,11 @@ function App() {
                 <Route path="/roadmap/:id" element={<RoadmapBuilderPage />} />
                 <Route path="/journey" element={<JourneyDashboardPage />} />
                 <Route path="/advisor" element={<AdvisorDashboardPage />} />
+                <Route path="/advisor/:studentId" element={<AdvisorDashboardPage />} />
               </Route>
             </Routes>
           </div>
-          <Toaster />
+          <Toaster position="top-right" />
         </BrowserRouter>
       </AuthProvider>
     </DarkModeProvider>

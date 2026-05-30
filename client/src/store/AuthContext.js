@@ -165,6 +165,21 @@ export const AuthProvider = ({ children }) => {
         }
         demoSignIn(email, password);
     };
+    const updateProfile = async (data) => {
+        if (!user)
+            return;
+        const next = { ...user, user_metadata: { ...(user.user_metadata ?? {}), ...data } };
+        writeDemoUser(next);
+        setUser(next);
+        if (!isDemoMode && supabase) {
+            try {
+                await supabase.auth.updateUser({ data });
+            }
+            catch {
+                /* ignore — local copy already updated */
+            }
+        }
+    };
     const signOut = async () => {
         writeDemoUser(null);
         setUser(null);
@@ -177,7 +192,7 @@ export const AuthProvider = ({ children }) => {
             }
         }
     };
-    return (_jsx(AuthContext.Provider, { value: { user, loading, isDemoMode, signUp, signIn, signOut }, children: children }));
+    return (_jsx(AuthContext.Provider, { value: { user, loading, isDemoMode, signUp, signIn, signOut, updateProfile }, children: children }));
 };
 export const useAuth = () => {
     const ctx = useContext(AuthContext);

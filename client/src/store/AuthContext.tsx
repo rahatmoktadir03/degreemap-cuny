@@ -14,6 +14,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, data?: Record<string, unknown>) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateProfile: (data: Record<string, unknown>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -187,6 +188,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     demoSignIn(email, password);
   };
 
+  const updateProfile = async (data: Record<string, unknown>) => {
+    if (!user) return;
+    const next: DemoUser = { ...user, user_metadata: { ...(user.user_metadata ?? {}), ...data } };
+    writeDemoUser(next);
+    setUser(next);
+    if (!isDemoMode && supabase) {
+      try {
+        await supabase.auth.updateUser({ data });
+      } catch {
+        /* ignore — local copy already updated */
+      }
+    }
+  };
+
   const signOut = async () => {
     writeDemoUser(null);
     setUser(null);
@@ -200,7 +215,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, isDemoMode, signUp, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ user, loading, isDemoMode, signUp, signIn, signOut, updateProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );
