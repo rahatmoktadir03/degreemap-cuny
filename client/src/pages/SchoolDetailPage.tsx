@@ -119,12 +119,12 @@ const SchoolDetailPage = () => {
             <ArrowLeft className="h-4 w-4" /> Back to Explore
           </Link>
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="shrink-0 rounded-2xl bg-white/15 backdrop-blur border border-white/20 p-2 shadow-lg">
+            <div className="flex items-start gap-5 lg:-ml-6">
+              <div className="shrink-0 rounded-3xl bg-white/15 backdrop-blur border border-white/20 p-3 shadow-lg">
                 <img
                   src={campus.logo ?? campus.image}
                   alt={`${campus.name} logo`}
-                  className="h-20 w-20 rounded-xl object-cover bg-white"
+                  className="h-20 w-36 sm:h-24 sm:w-44 lg:h-28 lg:w-52 object-contain bg-white/95 p-2"
                 />
               </div>
               <div>
