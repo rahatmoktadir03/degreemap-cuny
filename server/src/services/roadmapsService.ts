@@ -1,140 +1,109 @@
 import { supabaseAdmin } from "../supabase/client.js";
-import { Roadmap, RoadmapNode, RoadmapEdge } from "../types/roadmap.js";
+import { RoadmapNode, RoadmapEdge } from "../types/roadmap.js";
 
 export const roadmapsService = {
-  // Create a new roadmap
   async createRoadmap(
     userId: string,
     title: string,
     description?: string,
     nodes: RoadmapNode[] = [],
-    edges: RoadmapEdge[] = []
+    edges: RoadmapEdge[] = [],
+    schoolId?: string
   ) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmaps")
-        .insert({
-          user_id: userId,
-          title,
-          description,
-          nodes: JSON.stringify(nodes),
-          edges: JSON.stringify(edges),
-          is_template: false,
-        })
-        .select()
-        .single();
+    const { data, error } = await supabaseAdmin
+      .from("roadmaps")
+      .insert({
+        user_id: userId,
+        title,
+        description,
+        nodes,
+        edges,
+        is_template: false,
+        school_id: schoolId ?? null,
+      })
+      .select()
+      .single();
 
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error("Error creating roadmap:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data;
   },
 
-  // Get all roadmaps for a user
   async getUserRoadmaps(userId: string) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmaps")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("is_template", false)
-        .order("created_at", { ascending: false });
+    const { data, error } = await supabaseAdmin
+      .from("roadmaps")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("is_template", false)
+      .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching user roadmaps:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data ?? [];
   },
 
-  // Get a specific roadmap
   async getRoadmap(roadmapId: string, userId: string) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmaps")
-        .select("*")
-        .eq("id", roadmapId)
-        .eq("user_id", userId)
-        .single();
+    const { data, error } = await supabaseAdmin
+      .from("roadmaps")
+      .select("*")
+      .eq("id", roadmapId)
+      .eq("user_id", userId)
+      .maybeSingle();
 
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error("Error fetching roadmap:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data;
   },
 
-  // Update a roadmap with new nodes and edges
   async updateRoadmap(
     roadmapId: string,
     userId: string,
-    title: string,
-    nodes: RoadmapNode[],
-    edges: RoadmapEdge[],
-    description?: string
+    patch: {
+      title?: string;
+      description?: string;
+      nodes?: RoadmapNode[];
+      edges?: RoadmapEdge[];
+      is_public?: boolean;
+    }
   ) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmaps")
-        .update({
-          title,
-          description,
-          nodes: JSON.stringify(nodes),
-          edges: JSON.stringify(edges),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", roadmapId)
-        .eq("user_id", userId)
-        .select()
-        .single();
+    const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (patch.title !== undefined) update.title = patch.title;
+    if (patch.description !== undefined) update.description = patch.description;
+    if (patch.nodes !== undefined) update.nodes = patch.nodes;
+    if (patch.edges !== undefined) update.edges = patch.edges;
+    if (patch.is_public !== undefined) update.is_public = patch.is_public;
 
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error("Error updating roadmap:", error);
-      throw error;
-    }
+    const { data, error } = await supabaseAdmin
+      .from("roadmaps")
+      .update(update)
+      .eq("id", roadmapId)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   },
 
-  // Delete a roadmap
   async deleteRoadmap(roadmapId: string, userId: string) {
-    try {
-      const { error } = await supabaseAdmin
-        .from("roadmaps")
-        .delete()
-        .eq("id", roadmapId)
-        .eq("user_id", userId);
+    const { error } = await supabaseAdmin
+      .from("roadmaps")
+      .delete()
+      .eq("id", roadmapId)
+      .eq("user_id", userId);
 
-      if (error) throw error;
-      return { success: true };
-    } catch (error) {
-      console.error("Error deleting roadmap:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return { success: true };
   },
 
-  // Get template roadmaps
   async getTemplateRoadmaps() {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmaps")
-        .select("*")
-        .eq("is_template", true)
-        .order("title", { ascending: true });
+    const { data, error } = await supabaseAdmin
+      .from("roadmaps")
+      .select("*")
+      .eq("is_template", true)
+      .order("title", { ascending: true });
 
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching template roadmaps:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data ?? [];
   },
 
-  // Create a template roadmap
   async createTemplateRoadmap(
     title: string,
     templateName: string,
@@ -142,63 +111,44 @@ export const roadmapsService = {
     nodes: RoadmapNode[] = [],
     edges: RoadmapEdge[] = []
   ) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmaps")
-        .insert({
-          user_id: null, // Templates don't belong to a specific user
-          title,
-          description,
-          nodes: JSON.stringify(nodes),
-          edges: JSON.stringify(edges),
-          is_template: true,
-          template_name: templateName,
-        })
-        .select()
-        .single();
+    const { data, error } = await supabaseAdmin
+      .from("roadmaps")
+      .insert({
+        user_id: null,
+        title,
+        description,
+        nodes,
+        edges,
+        is_template: true,
+        template_name: templateName,
+      })
+      .select()
+      .single();
 
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error("Error creating template roadmap:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data;
   },
 
-  // Get a roadmap by share_id (public endpoint)
   async getPublicRoadmap(shareId: string) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmaps")
-        .select("id, title, description, nodes, edges, created_at, updated_at")
-        .eq("share_id", shareId)
-        .single();
+    const { data, error } = await supabaseAdmin
+      .from("roadmaps")
+      .select("id, title, description, nodes, edges, created_at, updated_at")
+      .eq("share_id", shareId)
+      .maybeSingle();
 
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error("Error fetching public roadmap:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data;
   },
 
-  // Generate a share ID for a roadmap (UUID)
   async generateShareId(roadmapId: string, userId: string): Promise<string> {
-    try {
-      // Generate a UUID for the share link
-      const shareId = crypto.randomUUID();
+    const shareId = crypto.randomUUID();
+    const { error } = await supabaseAdmin
+      .from("roadmaps")
+      .update({ share_id: shareId, is_public: true })
+      .eq("id", roadmapId)
+      .eq("user_id", userId);
 
-      const { error } = await supabaseAdmin
-        .from("roadmaps")
-        .update({ share_id: shareId })
-        .eq("id", roadmapId)
-        .eq("user_id", userId);
-
-      if (error) throw error;
-      return shareId;
-    } catch (error) {
-      console.error("Error generating share ID:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return shareId;
   },
 };

@@ -25,11 +25,13 @@ export const authenticateToken = async (
       return;
     }
 
-    // Verify the token using Supabase admin client
+    // Verify the JWT against Supabase Auth. NOTE: `auth.admin.getUserById`
+    // expects a UUID, not a JWT — using it here was a silent 403 for every
+    // protected route. The correct API is `auth.getUser(token)`.
     const {
       data: { user },
       error,
-    } = await supabaseAdmin.auth.admin.getUserById(token);
+    } = await supabaseAdmin.auth.getUser(token);
 
     if (error || !user) {
       res.status(403).json({

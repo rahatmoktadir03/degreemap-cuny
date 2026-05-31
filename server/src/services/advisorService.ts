@@ -1,87 +1,82 @@
 import { supabaseAdmin } from "../supabase/client.js";
 
+// NOTE: previous version selected `display_name` and `email:auth.users(email)`
+// which neither exists as a column nor as a defined PostgREST relation.
+// We now select the columns that actually live on `profiles` and join to
+// `auth.users` via a separate admin call when we need the email.
+
 export const advisorService = {
-  // Get list of students for an advisor (would be based on advisor assignment in real app)
   async getStudents(advisorId: string) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("profiles")
-        .select("id, display_name, email:auth.users(email)")
-        .neq("id", advisorId)
-        .limit(50);
+    const { data, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id, name, school, major, graduation_year, role, updated_at")
+      .neq("id", advisorId)
+      .eq("role", "student")
+      .order("updated_at", { ascending: false })
+      .limit(100);
 
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching students:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data ?? [];
   },
 
-  // Get roadmaps for a specific student
   async getStudentRoadmaps(studentId: string) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmaps")
-        .select("*")
-        .eq("user_id", studentId)
-        .eq("is_template", false)
-        .order("created_at", { ascending: false });
+    const { data, error } = await supabaseAdmin
+      .from("roadmaps")
+      .select("*")
+      .eq("user_id", studentId)
+      .eq("is_template", false)
+      .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching student roadmaps:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data ?? [];
   },
 
-  // Add comment to a node in a roadmap
-  async addComment(roadmapId: string, nodeId: string, advisorId: string, comment: string) {
-    try {
-      const { data: roadmapData, error: roadmapError } = await supabaseAdmin
-        .from("roadmaps")
-        .select("nodes")
-        .eq("id", roadmapId)
-        .single();
+  async addComment(roadmapId: string, nodeId: string | null, advisorId: string, comment: string) {
+    // Make sure the roadmap exists before writing a comment.
+    const { data: roadmap, error: roadmapErr } = await supabaseAdmin
+      .from("roadmaps")
+      .select("id")
+      .eq("id", roadmapId)
+      .single();
 
-      if (roadmapError) throw roadmapError;
-
-      // For now, we'll store comments in a simple way
-      // In a production app, you'd have a separate comments table
-      const { data, error } = await supabaseAdmin
-        .from("roadmap_comments")
-        .insert({
-          roadmap_id: roadmapId,
-          node_id: nodeId,
-          advisor_id: advisorId,
-          comment,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      throw error;
+    if (roadmapErr || !roadmap) {
+      throw new Error("Roadmap not found");
     }
+
+    const { data, error } = await supabaseAdmin
+      .from("roadmap_comments")
+      .insert({
+        roadmap_id: roadmapId,
+        node_id: nodeId,
+        advisor_id: advisorId,
+        comment,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   },
 
-  // Get comments for a roadmap
   async getRoadmapComments(roadmapId: string) {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from("roadmap_comments")
-        .select("*")
-        .eq("roadmap_id", roadmapId)
-        .order("created_at", { ascending: false });
+    const { data, error } = await supabaseAdmin
+      .from("roadmap_comments")
+      .select("*")
+      .eq("roadmap_id", roadmapId)
+      .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-      throw error;
-    }
+    if (error) throw error;
+    return data ?? [];
+  },
+
+  async isAdvisor(userId: string): Promise<boolean> {
+    const { data, error } = await supabaseAdmin
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .single();
+
+    if (error || !data) return false;
+    return data.role === "advisor" || data.role === "admin";
   },
 };

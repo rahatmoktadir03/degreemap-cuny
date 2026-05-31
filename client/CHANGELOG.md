@@ -1,5 +1,131 @@
 # Complete Build Changes - Changelog
 
+## 2026-05-31 — Phase 7: Map crash fix + server overhaul
+
+### Frontend
+
+- **Fixed the Explore → Map view crashing to a blank page.** Root cause: the
+  project runs `react@^19` but `react-leaflet@4.x` only supports React 18, so
+  the Leaflet provider tree blew up on mount. Upgraded to
+  `react-leaflet@^5` (React 19 compatible). Also hardened
+  `CampusMap.tsx` to handle an empty `filtered` list — `L.latLngBounds([])`
+  was throwing — and clamped `fitBounds` to `maxZoom: 14`.
+
+### Server (`server/`)
+
+A full audit found that the protected API was unreachable and the SQL schema
+was out of sync with the controllers. Concrete fixes applied:
+
+- **Auth middleware was 100% broken.**
+  `src/middleware/auth.ts` was calling `supabaseAdmin.auth.admin.getUserById(token)`
+  — that API expects a UUID, not a JWT, so every protected request was 403.
+  Replaced with `supabaseAdmin.auth.getUser(token)`, the correct JWT verifier.
+- **DATABASE_SETUP.sql** rewritten as the canonical fresh-install schema.
+  - Added `roadmaps.edges`, `roadmaps.is_template`, `roadmaps.template_name`,
+    `roadmaps.share_id` (all referenced by the service code but previously
+    missing from SQL).
+  - Made `roadmaps.school_id` nullable — the controller never sets it.
+  - Added `roadmap_comments` table (used by the advisor service; previously
+    didn't exist, so every advisor comment request 404'd).
+  - Added `profiles.role` (`student` | `advisor` | `admin`) for proper
+    advisor-route authorization.
+  - Tightened RLS policies: students see only their own; advisors/admins can
+    read all profiles, all roadmaps, and all comments; commenters must have
+    the advisor role.
+- **MIGRATION_2026-05-30.sql** added for projects that already ran the old
+  schema — additive `ADD COLUMN IF NOT EXISTS` plus the new
+  `roadmap_comments` table with RLS, safe to re-run.
+- **Reviews service** rewritten to use the actual `campus_reviews` table
+  (`campus_name`, `review_text`, `categories`) instead of the non-existent
+  `reviews.school_id` / `reviews.comment` shape. The frontend's campus id
+  (e.g. `"hunter"`) is stored in `campus_name`.
+- **Advisor service** stopped selecting `display_name` and
+  `email:auth.users(email)` (neither was a real column nor a defined
+  PostgREST relation — every query 400'd). Now selects real `profiles`
+  columns. Added `isAdvisor(userId)` helper and a `requireAdvisor` guard in
+  `advisorController` so non-advisors can't list students or post comments.
+- **Roadmaps IDOR fixed.** `GET /api/roadmaps/:userId` let any logged-in user
+  list any other user's roadmaps. Replaced with `GET /api/roadmaps/mine`
+  keyed off `req.user.id`.
+- **Roadmaps partial updates.** `PUT /api/roadmaps/:id` no longer requires
+  `title`, `nodes`, and `edges` all to be present — any subset (plus
+  `description`, `is_public`) is accepted.
+- **Stopped JSON.stringify-ing JSONB values.** Supabase JS handles JSONB
+  serialization; the previous double-encoding was producing strings instead
+  of arrays in `nodes`/`edges`.
+- **CORS lock-down.** `cors()` with no options is gone. `index.ts` reads a
+  comma-separated `FRONTEND_URL` env var (defaults to local Vite ports) and
+  validates origins. `credentials: true` enabled. Unknown `/api/*` routes
+  return JSON `404` instead of falling through to Express's default HTML.
+- **Centralized error handler** so CORS rejections and unhandled throws
+  serialize as `{ success, message }` JSON rather than HTML.
+- **PII scrub.** `authService.ts` no longer writes emails or Supabase error
+  internals to `auth.log`. The existing `auth.log` file was deleted.
+- **Register endpoint** now accepts and persists `school` and `major` in the
+  profile (matches the client register form).
+- **Login + signup**: `email_confirm: true` on admin signup so users can log
+  in immediately in dev. `loginUser` uses `.maybeSingle()` on the profile
+  fetch so a missing row doesn't throw.
+- **Dead code removed**: `server/src/supabase/init.ts`,
+  `server/src/supabase/init-db.ts`, `server/src/supabase/schools.ts`,
+  `server/src/supabase/seed.ts`, stale `server/dist/`, and the PII
+  `server/auth.log`.
+- **Standardized error envelope.** All controllers now return
+  `{ success: false, message }` on errors (roadmaps/reviews/advisor were
+  returning `{ error }` which the frontend would have to special-case).
+
+### Endpoints (post-fix)
+
+```
+GET    /api/health
+POST   /api/auth/register        body {email, password, name, school?, major?}
+POST   /api/auth/login
+GET    /api/schools              (and friends)
+GET    /api/schools/:id
+POST   /api/schools/:schoolId/reviews        (auth) body {rating, comment?, categories?}
+GET    /api/schools/:schoolId/reviews
+GET    /api/schools/reviews/user/:userId     (auth)
+DELETE /api/schools/:schoolId/reviews/:reviewId (auth)
+GET    /api/users/me             (auth)
+PUT    /api/users/me             (auth) body {name?, school?, major?}
+GET    /api/roadmaps/public/:shareId
+GET    /api/roadmaps/templates
+POST   /api/roadmaps             (auth) body {title, description?, nodes?, edges?, schoolId?}
+POST   /api/roadmaps/share/generate (auth) body {roadmapId}
+GET    /api/roadmaps/mine        (auth)         ← replaces GET /api/roadmaps/:userId
+GET    /api/roadmaps/detail/:id  (auth)
+PUT    /api/roadmaps/:id         (auth)         ← now accepts partial updates
+DELETE /api/roadmaps/:id         (auth)
+GET    /api/advisor/students                          (auth + advisor role)
+GET    /api/advisor/students/:studentId/roadmaps      (auth + advisor role)
+POST   /api/advisor/roadmaps/:roadmapId/comments      (auth + advisor role)
+GET    /api/advisor/roadmaps/:roadmapId/comments      (auth + advisor role)
+```
+
+Response envelope is consistently:
+```json
+{ "success": true,  "data": ... }
+{ "success": false, "message": "..." }
+```
+
+### Verified
+
+- Frontend: `npm run build` ✓ no TS errors.
+- Server: `npm run build` ✓ no TS errors.
+- Server: `npm run dev` ✓ boots, `GET /api/health` returns
+  `{"success":true,"message":"DegreeMap server is running 🎓"}`.
+
+### What the frontend still needs (not blocking)
+
+The client at `client/` still talks directly to Supabase Anon + localStorage
+demo mode. That's intentional — the demo experience needs no backend. To
+flip the client onto this REST API, set `VITE_API_URL=http://localhost:5000`
+and add an `apiClient.ts` that injects the access-token from
+`supabase.auth.getSession()` into an `Authorization: Bearer` header for each
+fetch. The two paths can coexist behind a feature flag.
+
+---
+
 ## 2026-05-30 — Phase 6: Planned feature backfill
 
 Audit-driven implementation pass to close the gap between what the MDs in `/mds`
