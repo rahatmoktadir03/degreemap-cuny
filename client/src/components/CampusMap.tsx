@@ -94,7 +94,7 @@ const CampusMap = ({ campuses, height = "420px" }: Props) => {
         {campuses.map((c) => (
           <Marker key={c.id} position={c.coords} icon={iconFor(c.type)}>
             <Popup>
-              <div className="min-w-[200px]">
+              <div className="min-w-50">
                 <strong className="text-sm">{c.name}</strong>
                 <p className="my-1 text-xs text-slate-600 dark:text-slate-300">
                   {c.type} · {c.borough}

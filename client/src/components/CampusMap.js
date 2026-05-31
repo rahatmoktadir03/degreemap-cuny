@@ -74,7 +74,7 @@ const CampusMap = ({ campuses, height = "420px" }) => {
               icon: colorIcon(typeColor[c.type]),
               children: _jsx(Popup, {
                 children: _jsxs("div", {
-                  className: "min-w-[200px]",
+                  className: "min-w-50",
                   children: [
                     _jsx("strong", { className: "text-sm", children: c.name }),
                     _jsxs("p", {

@@ -95,15 +95,23 @@ const SchoolDetailPage = () => {
   return (
     <div>
       {/* Hero */}
-      <section
-        className="relative text-white"
-        style={{
-          backgroundImage: `linear-gradient(135deg, ${campus.colors.from}cc, ${campus.colors.to}cc), url(${campus.image})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <section className="relative overflow-hidden text-white">
+        <img
+          src={campus.image}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          className={`absolute inset-0 ${
+            campus.type === "Senior College"
+              ? "bg-linear-to-br from-blue-950/75 via-indigo-900/60 to-cyan-900/70"
+              : campus.type === "Community College"
+                ? "bg-linear-to-br from-emerald-950/75 via-slate-900/60 to-teal-900/70"
+                : "bg-linear-to-br from-violet-950/75 via-slate-900/60 to-fuchsia-900/70"
+          }`}
+        />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <Link
             to="/explore"
             className="inline-flex items-center gap-1.5 text-white/90 hover:text-white text-sm font-semibold mb-6"
@@ -111,14 +119,23 @@ const SchoolDetailPage = () => {
             <ArrowLeft className="h-4 w-4" /> Back to Explore
           </Link>
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-            <div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-white/20 backdrop-blur border border-white/30">
-                {campus.type}
-              </span>
-              <h1 className="mt-3 text-4xl sm:text-5xl font-extrabold leading-tight drop-shadow">
-                {campus.name}
-              </h1>
-              <p className="mt-2 text-white/85 max-w-2xl">{campus.description}</p>
+            <div className="flex items-start gap-4">
+              <div className="shrink-0 rounded-2xl bg-white/15 backdrop-blur border border-white/20 p-2 shadow-lg">
+                <img
+                  src={campus.logo ?? campus.image}
+                  alt={`${campus.name} logo`}
+                  className="h-20 w-20 rounded-xl object-cover bg-white"
+                />
+              </div>
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-white/20 backdrop-blur border border-white/30">
+                  {campus.type}
+                </span>
+                <h1 className="mt-3 text-4xl sm:text-5xl font-extrabold leading-tight drop-shadow">
+                  {campus.name}
+                </h1>
+                <p className="mt-2 text-white/85 max-w-2xl">{campus.description}</p>
+              </div>
             </div>
             <div className="flex flex-wrap gap-3 text-sm">
               <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur border border-white/30 rounded-lg px-3 py-1.5">

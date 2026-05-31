@@ -15,11 +15,14 @@ export interface Campus {
   coords: [number, number];
   /** Background image (uses Picsum seed so each campus has a stable but distinct image) */
   image: string;
+  /** Optional logo or badge image for the campus */
+  logo?: string;
   /** Gradient stops for hero/card accent */
   colors: { from: string; to: string };
 }
 
 const img = (id: string) => `https://picsum.photos/seed/cuny-${id}/1200/600`;
+const logo = (name: string) => `/images/${encodeURIComponent(name)}.png`;
 
 export const cunyCampuses: Campus[] = [
   {
@@ -36,6 +39,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Finance", "Accounting", "Public Affairs", "Marketing"],
     coords: [40.7402, -73.9836],
     image: img("baruch"),
+    logo: logo("Baruch College"),
     colors: { from: "#1e3a8a", to: "#0ea5e9" },
   },
   {
@@ -52,6 +56,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Film", "Education", "Computer Science", "Music"],
     coords: [40.6306, -73.9554],
     image: img("brooklyn"),
+    logo: logo("Brooklyn College"),
     colors: { from: "#7c3aed", to: "#ec4899" },
   },
   {
@@ -68,6 +73,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Engineering", "Architecture", "Biology", "Computer Science"],
     coords: [40.8198, -73.9494],
     image: img("ccny"),
+    logo: logo("City College"),
     colors: { from: "#0f766e", to: "#0ea5e9" },
   },
   {
@@ -84,6 +90,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Nursing", "Psychology", "English", "Social Work"],
     coords: [40.7686, -73.9648],
     image: img("hunter"),
+    logo: logo("Hunter College"),
     colors: { from: "#b91c1c", to: "#f97316" },
   },
   {
@@ -100,6 +107,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Criminal Justice", "Forensic Science", "Public Administration"],
     coords: [40.7706, -73.9883],
     image: img("jjay"),
+    logo: logo("John Jay"),
     colors: { from: "#0c4a6e", to: "#0ea5e9" },
   },
   {
@@ -116,6 +124,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Nursing", "Health Sciences", "Education", "Speech-Language"],
     coords: [40.8731, -73.8932],
     image: img("lehman"),
+    logo: logo("Lehman College"),
     colors: { from: "#15803d", to: "#84cc16" },
   },
   {
@@ -132,6 +141,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Education", "Computer Science", "Music", "Business"],
     coords: [40.7368, -73.8203],
     image: img("queens"),
+    logo: logo("Queens College"),
     colors: { from: "#1d4ed8", to: "#06b6d4" },
   },
   {
@@ -148,6 +158,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Nursing", "Engineering Science", "Business", "Psychology"],
     coords: [40.6019, -74.1502],
     image: img("csi"),
+    logo: logo("Staten Island"),
     colors: { from: "#0e7490", to: "#22d3ee" },
   },
   {
@@ -164,6 +175,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Aviation Management", "Health Sciences", "Pharmaceutical Science"],
     coords: [40.7019, -73.7965],
     image: img("yc"),
+    logo: logo("York College"),
     colors: { from: "#a16207", to: "#facc15" },
   },
   {
@@ -180,6 +192,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Nursing", "Public Administration", "Computer Science", "Education"],
     coords: [40.6685, -73.9468],
     image: img("medgar"),
+    logo: logo("Medgar Evers"),
     colors: { from: "#7f1d1d", to: "#f59e0b" },
   },
   {
@@ -196,6 +209,7 @@ export const cunyCampuses: Campus[] = [
     notablePrograms: ["Computer Systems", "Hospitality", "Architectural Tech", "Dental Hygiene"],
     coords: [40.6957, -73.987],
     image: img("nyct"),
+    logo: logo("City Tech"),
     colors: { from: "#0f172a", to: "#3b82f6" },
   },
   {
