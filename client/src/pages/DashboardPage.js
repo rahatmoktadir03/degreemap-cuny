@@ -1,35 +1,66 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BookOpen, Calendar, Compass, GraduationCap, Plus, Save, Sparkles, Trash2, TrendingUp, } from "lucide-react";
 import { useAuth } from "../store/AuthContext";
 import { cunyCampuses } from "../data/cunyCampuses";
-import { deleteRoadmap, listRoadmaps } from "../services/roadmapStore";
+import * as roadmapService from "../services/roadmapService";
 import { roadmapTemplates } from "../data/roadmapTemplates";
 import toast from "react-hot-toast";
 const DashboardPage = () => {
     const navigate = useNavigate();
     const { user, updateProfile } = useAuth();
     const name = (user?.email?.split("@")[0] ?? "student").replace(/\.|_/g, " ");
-    const [roadmaps, setRoadmaps] = useState(() => listRoadmaps());
+    const [roadmaps, setRoadmaps] = useState([]);
     const [school, setSchool] = useState(user?.user_metadata?.school ?? "");
     const [major, setMajor] = useState(user?.user_metadata?.major ?? "");
     const [savingProfile, setSavingProfile] = useState(false);
     const stats = useMemo(() => {
-        const earned = roadmaps.reduce((acc, r) => acc + r.nodes.filter((n) => n.data.status === "complete").reduce((a, n) => a + (n.data.credits ?? 0), 0), 0);
-        const inProg = roadmaps.reduce((acc, r) => acc + r.nodes.filter((n) => n.data.status === "in-progress").reduce((a, n) => a + (n.data.credits ?? 0), 0), 0);
+        const earned = roadmaps.reduce((acc, r) => acc +
+            r.nodes
+                .filter((n) => n.data.status === "complete")
+                .reduce((a, n) => a + (n.data.credits ?? 0), 0), 0);
+        const inProg = roadmaps.reduce((acc, r) => acc +
+            r.nodes
+                .filter((n) => n.data.status === "in-progress")
+                .reduce((a, n) => a + (n.data.credits ?? 0), 0), 0);
         return [
-            { label: "Credits earned", value: `${earned}`, trend: `+${inProg} in progress`, icon: GraduationCap },
+            {
+                label: "Credits earned",
+                value: `${earned}`,
+                trend: `+${inProg} in progress`,
+                icon: GraduationCap,
+            },
             { label: "Current GPA", value: "3.62", trend: "↑ from 3.55", icon: TrendingUp },
-            { label: "Roadmaps", value: `${roadmaps.length}`, trend: roadmaps.length ? "Active plans" : "None yet", icon: BookOpen },
+            {
+                label: "Roadmaps",
+                value: `${roadmaps.length}`,
+                trend: roadmaps.length ? "Active plans" : "None yet",
+                icon: BookOpen,
+            },
             { label: "Next milestone", value: "60 cr", trend: "Junior status", icon: Sparkles },
         ];
     }, [roadmaps]);
-    const handleRemove = (id) => {
-        deleteRoadmap(id);
-        setRoadmaps(listRoadmaps());
+    const handleRemove = async (id) => {
+        try {
+            if (roadmapService) {
+                await roadmapService.deleteRoadmap?.(id);
+            }
+        }
+        catch (err) {
+            // ignore
+        }
+        const list = await roadmapService.listRoadmaps();
+        setRoadmaps(list);
         toast.success("Roadmap removed");
     };
+    // load roadmaps
+    useEffect(() => {
+        (async () => {
+            const list = await roadmapService.listRoadmaps();
+            setRoadmaps(list);
+        })();
+    }, []);
     const handleProfileSave = async (e) => {
         e.preventDefault();
         setSavingProfile(true);

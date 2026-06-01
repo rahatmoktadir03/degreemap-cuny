@@ -36,13 +36,8 @@ import {
   type RoadmapNodeType,
   getTemplateById,
 } from "../data/roadmapTemplates";
-import {
-  generateRoadmapId,
-  generateShareToken,
-  getRoadmap,
-  saveRoadmap,
-  type StoredRoadmap,
-} from "../services/roadmapStore";
+import { type StoredRoadmap } from "../services/roadmapStore";
+import * as roadmapService from "../services/roadmapService";
 
 const nodeTypes = { roadmap: RoadmapNode };
 
@@ -55,19 +50,27 @@ const newNode = (
   type: "roadmap",
   position,
   data: {
-    label: type === "course" ? "New Course" : type === "milestone" ? "New Milestone" : type === "elective" ? "Elective" : "Career Goal",
+    label:
+      type === "course"
+        ? "New Course"
+        : type === "milestone"
+          ? "New Milestone"
+          : type === "elective"
+            ? "Elective"
+            : "Career Goal",
     credits: type === "course" || type === "elective" ? 3 : undefined,
     status: "planned",
     type,
   },
 });
 
-const typeButtons: { type: RoadmapNodeType; label: string; icon: typeof BookOpen; cls: string }[] = [
-  { type: "course", label: "Course", icon: BookOpen, cls: "bg-blue-500" },
-  { type: "milestone", label: "Milestone", icon: Flag, cls: "bg-purple-500" },
-  { type: "elective", label: "Elective", icon: Target, cls: "bg-amber-500" },
-  { type: "goal", label: "Goal", icon: Trophy, cls: "bg-emerald-500" },
-];
+const typeButtons: { type: RoadmapNodeType; label: string; icon: typeof BookOpen; cls: string }[] =
+  [
+    { type: "course", label: "Course", icon: BookOpen, cls: "bg-blue-500" },
+    { type: "milestone", label: "Milestone", icon: Flag, cls: "bg-purple-500" },
+    { type: "elective", label: "Elective", icon: Target, cls: "bg-amber-500" },
+    { type: "goal", label: "Goal", icon: Trophy, cls: "bg-emerald-500" },
+  ];
 
 const statusOptions: RoadmapNodeStatus[] = ["planned", "in-progress", "complete"];
 
@@ -87,8 +90,8 @@ const RoadmapBuilderPage = () => {
   // Load existing roadmap or template, or start fresh
   useEffect(() => {
     if (!routeId) {
-      setRoadmapId(generateRoadmapId());
-      setShareToken(generateShareToken());
+      setRoadmapId(roadmapService.generateRoadmapId());
+      setShareToken(roadmapService.generateShareToken());
       setNodes([]);
       setEdges([]);
       return;
@@ -96,8 +99,8 @@ const RoadmapBuilderPage = () => {
     if (routeId.startsWith("tpl-")) {
       const tpl = getTemplateById(routeId);
       if (tpl) {
-        setRoadmapId(generateRoadmapId());
-        setShareToken(generateShareToken());
+        setRoadmapId(roadmapService.generateRoadmapId());
+        setShareToken(roadmapService.generateShareToken());
         setTitle(`${tpl.title} (from template)`);
         setNodes(tpl.nodes.map((n) => ({ ...n, position: { ...n.position } })));
         setEdges(tpl.edges.map((e) => ({ ...e })));
@@ -105,18 +108,21 @@ const RoadmapBuilderPage = () => {
         return;
       }
     }
-    const stored = getRoadmap(routeId);
-    if (stored) {
-      setRoadmapId(stored.id);
-      setShareToken(stored.shareToken);
-      setTitle(stored.title);
-      setNodes(stored.nodes);
-      setEdges(stored.edges);
-      return;
-    }
-    // Unknown id — treat as new
-    setRoadmapId(routeId);
-    setShareToken(generateShareToken());
+    (async () => {
+      // Try server/local store via roadmapService
+      const stored = await roadmapService.getRoadmap(routeId);
+      if (stored) {
+        setRoadmapId(stored.id);
+        setShareToken(stored.shareToken);
+        setTitle(stored.title);
+        setNodes(stored.nodes);
+        setEdges(stored.edges);
+        return;
+      }
+      // Unknown id — treat as new
+      setRoadmapId(routeId);
+      setShareToken(roadmapService.generateShareToken());
+    })();
   }, [routeId]);
 
   const onNodesChange = useCallback(
@@ -149,20 +155,20 @@ const RoadmapBuilderPage = () => {
   const updateSelected = (patch: Partial<RoadmapNodeData>) => {
     if (!selectedNodeId) return;
     setNodes((nds) =>
-      nds.map((n) =>
-        n.id === selectedNodeId ? { ...n, data: { ...n.data, ...patch } } : n
-      )
+      nds.map((n) => (n.id === selectedNodeId ? { ...n, data: { ...n.data, ...patch } } : n))
     );
   };
 
   const deleteSelected = () => {
     if (!selectedNodeId) return;
     setNodes((nds) => nds.filter((n) => n.id !== selectedNodeId));
-    setEdges((eds) => eds.filter((e) => e.source !== selectedNodeId && e.target !== selectedNodeId));
+    setEdges((eds) =>
+      eds.filter((e) => e.source !== selectedNodeId && e.target !== selectedNodeId)
+    );
     setSelectedNodeId(null);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!roadmapId) return;
     const roadmap: StoredRoadmap = {
       id: roadmapId,
@@ -172,11 +178,22 @@ const RoadmapBuilderPage = () => {
       edges,
       updatedAt: new Date().toISOString(),
     };
-    saveRoadmap(roadmap);
-    if (!routeId || routeId.startsWith("tpl-")) {
-      navigate(`/roadmap/${roadmapId}`, { replace: true });
+    try {
+      const saved = await roadmapService.saveRoadmap(roadmap);
+      // If server returned a new id, update route
+      const newId = saved?.id ?? roadmapId;
+      if (!routeId || routeId.startsWith("tpl-")) {
+        navigate(`/roadmap/${newId}`, { replace: true });
+      }
+      setRoadmapId(newId);
+      toast.success("Roadmap saved");
+    } catch (err) {
+      console.error(err);
+      toast.error("Save failed — falling back to local save");
+      // Fallback to local save
+      await roadmapService.saveRoadmap(roadmap);
+      toast.success("Roadmap saved locally");
     }
-    toast.success("Roadmap saved");
   };
 
   const copyShareLink = async () => {
@@ -266,7 +283,10 @@ const RoadmapBuilderPage = () => {
         {/* Canvas + side panel */}
         <div className="grid lg:grid-cols-[1fr_320px] gap-4">
           {/* Canvas */}
-          <div className="card-surface rounded-2xl shadow-sm overflow-hidden" style={{ height: "70vh" }}>
+          <div
+            className="card-surface rounded-2xl shadow-sm overflow-hidden"
+            style={{ height: "70vh" }}
+          >
             <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mr-1">
                 Add:
@@ -278,7 +298,9 @@ const RoadmapBuilderPage = () => {
                   onClick={() => addNodeOfType(b.type)}
                   className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-blue-400"
                 >
-                  <span className={`inline-flex w-4 h-4 rounded-sm ${b.cls} items-center justify-center`}>
+                  <span
+                    className={`inline-flex w-4 h-4 rounded-sm ${b.cls} items-center justify-center`}
+                  >
                     <b.icon className="h-2.5 w-2.5 text-white" />
                   </span>
                   {b.label}

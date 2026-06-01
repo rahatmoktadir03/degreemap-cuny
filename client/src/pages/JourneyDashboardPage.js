@@ -3,7 +3,8 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, } from "recharts";
 import { Award, CheckCircle2, Circle, Flag, GraduationCap, Target, TrendingUp } from "lucide-react";
-import { listRoadmaps } from "../services/roadmapStore";
+import * as roadmapService from "../services/roadmapService";
+import { useEffect, useState } from "react";
 const milestonesPlan = [
     { label: "Enrolled at CUNY", done: true, term: "Fall 2024" },
     { label: "Completed 30 credits (Sophomore)", done: true, term: "Spring 2025" },
@@ -21,7 +22,13 @@ const STATUS_COLORS = {
 };
 const DEGREE_TOTAL = 120;
 const JourneyDashboardPage = () => {
-    const roadmaps = useMemo(() => listRoadmaps(), []);
+    const [roadmaps, setRoadmaps] = useState([]);
+    useEffect(() => {
+        (async () => {
+            const list = await roadmapService.listRoadmaps();
+            setRoadmaps(list);
+        })();
+    }, []);
     const primary = roadmaps[0];
     const credits = useMemo(() => {
         const acc = { complete: 0, "in-progress": 0, planned: 0 };
@@ -67,7 +74,9 @@ const JourneyDashboardPage = () => {
             return {
                 semester: sem,
                 complete: entries.filter((e) => e.status === "complete").reduce((a, e) => a + e.credits, 0),
-                progress: entries.filter((e) => e.status === "in-progress").reduce((a, e) => a + e.credits, 0),
+                progress: entries
+                    .filter((e) => e.status === "in-progress")
+                    .reduce((a, e) => a + e.credits, 0),
                 planned: entries.filter((e) => e.status === "planned").reduce((a, e) => a + e.credits, 0),
             };
         });
@@ -75,7 +84,12 @@ const JourneyDashboardPage = () => {
     const stats = [
         { label: "Credits earned", value: `${earned}`, suffix: `/ ${DEGREE_TOTAL}`, icon: TrendingUp },
         { label: "In progress", value: `${inProgress}`, suffix: "cr", icon: GraduationCap },
-        { label: "Major", value: primary?.major ?? primary?.title ?? "BS CS", suffix: "", icon: Target },
+        {
+            label: "Major",
+            value: primary?.major ?? primary?.title ?? "BS CS",
+            suffix: "",
+            icon: Target,
+        },
         { label: "Expected grad", value: "2028", suffix: "", icon: Flag },
     ];
     return (_jsx("div", { className: "bg-hero-gradient", children: _jsxs("div", { className: "max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14", children: [_jsxs("div", { className: "animate-fade-in-up flex flex-col md:flex-row md:items-end md:justify-between gap-3", children: [_jsxs("div", { children: [_jsx("p", { className: "text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300", children: "My Journey" }), _jsxs("h1", { className: "mt-1 text-3xl sm:text-4xl font-extrabold", children: ["Track your ", _jsx("span", { className: "text-gradient", children: "progress" })] }), _jsx("p", { className: "mt-2 text-slate-600 dark:text-slate-400", children: "Live numbers from your active roadmap." })] }), primary && (_jsxs(Link, { to: `/roadmap/${primary.id}`, className: "inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-white dark:hover:bg-slate-800 text-sm font-semibold", children: [_jsx(Award, { className: "h-4 w-4" }), " Open active roadmap"] }))] }), _jsxs("div", { className: "mt-8 grid lg:grid-cols-[1.3fr_1fr] gap-5", children: [_jsxs("div", { className: "card-surface rounded-2xl p-6 shadow-sm", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsx("p", { className: "font-semibold", children: "Degree progress" }), _jsxs("p", { className: "text-2xl font-extrabold text-gradient", children: [progressPct, "%"] })] }), _jsx("div", { className: "mt-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden", children: _jsx("div", { className: "h-full rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 transition-all", style: { width: `${progressPct}%` } }) }), _jsxs("p", { className: "mt-2 text-xs text-slate-500 dark:text-slate-400", children: [earned, " of ", DEGREE_TOTAL, " credits earned \u00B7 ", inProgress, " in progress \u00B7 ", planned, " ", "planned"] }), bySemester.length > 0 && (_jsxs("div", { className: "mt-6", children: [_jsx("p", { className: "text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2", children: "Credits per semester" }), _jsx("div", { style: { width: "100%", height: 220 }, children: _jsx(ResponsiveContainer, { children: _jsxs(BarChart, { data: bySemester, children: [_jsx(XAxis, { dataKey: "semester", stroke: "#94a3b8", fontSize: 12 }), _jsx(YAxis, { stroke: "#94a3b8", fontSize: 12 }), _jsx(Tooltip, { contentStyle: {

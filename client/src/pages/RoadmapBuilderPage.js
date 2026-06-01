@@ -7,14 +7,20 @@ import toast from "react-hot-toast";
 import { BookOpen, Check, Copy, Flag, Plus, Save, Sparkles, Target, Trash2, Trophy, } from "lucide-react";
 import RoadmapNode from "../components/roadmap/RoadmapNode";
 import { roadmapTemplates, getTemplateById, } from "../data/roadmapTemplates";
-import { generateRoadmapId, generateShareToken, getRoadmap, saveRoadmap, } from "../services/roadmapStore";
+import * as roadmapService from "../services/roadmapService";
 const nodeTypes = { roadmap: RoadmapNode };
 const newNode = (id, type, position) => ({
     id,
     type: "roadmap",
     position,
     data: {
-        label: type === "course" ? "New Course" : type === "milestone" ? "New Milestone" : type === "elective" ? "Elective" : "Career Goal",
+        label: type === "course"
+            ? "New Course"
+            : type === "milestone"
+                ? "New Milestone"
+                : type === "elective"
+                    ? "Elective"
+                    : "Career Goal",
         credits: type === "course" || type === "elective" ? 3 : undefined,
         status: "planned",
         type,
@@ -41,8 +47,8 @@ const RoadmapBuilderPage = () => {
     // Load existing roadmap or template, or start fresh
     useEffect(() => {
         if (!routeId) {
-            setRoadmapId(generateRoadmapId());
-            setShareToken(generateShareToken());
+            setRoadmapId(roadmapService.generateRoadmapId());
+            setShareToken(roadmapService.generateShareToken());
             setNodes([]);
             setEdges([]);
             return;
@@ -50,8 +56,8 @@ const RoadmapBuilderPage = () => {
         if (routeId.startsWith("tpl-")) {
             const tpl = getTemplateById(routeId);
             if (tpl) {
-                setRoadmapId(generateRoadmapId());
-                setShareToken(generateShareToken());
+                setRoadmapId(roadmapService.generateRoadmapId());
+                setShareToken(roadmapService.generateShareToken());
                 setTitle(`${tpl.title} (from template)`);
                 setNodes(tpl.nodes.map((n) => ({ ...n, position: { ...n.position } })));
                 setEdges(tpl.edges.map((e) => ({ ...e })));
@@ -59,18 +65,21 @@ const RoadmapBuilderPage = () => {
                 return;
             }
         }
-        const stored = getRoadmap(routeId);
-        if (stored) {
-            setRoadmapId(stored.id);
-            setShareToken(stored.shareToken);
-            setTitle(stored.title);
-            setNodes(stored.nodes);
-            setEdges(stored.edges);
-            return;
-        }
-        // Unknown id — treat as new
-        setRoadmapId(routeId);
-        setShareToken(generateShareToken());
+        (async () => {
+            // Try server/local store via roadmapService
+            const stored = await roadmapService.getRoadmap(routeId);
+            if (stored) {
+                setRoadmapId(stored.id);
+                setShareToken(stored.shareToken);
+                setTitle(stored.title);
+                setNodes(stored.nodes);
+                setEdges(stored.edges);
+                return;
+            }
+            // Unknown id — treat as new
+            setRoadmapId(routeId);
+            setShareToken(roadmapService.generateShareToken());
+        })();
     }, [routeId]);
     const onNodesChange = useCallback((changes) => setNodes((nds) => applyNodeChanges(changes, nds)), []);
     const onEdgesChange = useCallback((changes) => setEdges((eds) => applyEdgeChanges(changes, eds)), []);
@@ -87,7 +96,7 @@ const RoadmapBuilderPage = () => {
     const updateSelected = (patch) => {
         if (!selectedNodeId)
             return;
-        setNodes((nds) => nds.map((n) => n.id === selectedNodeId ? { ...n, data: { ...n.data, ...patch } } : n));
+        setNodes((nds) => nds.map((n) => (n.id === selectedNodeId ? { ...n, data: { ...n.data, ...patch } } : n)));
     };
     const deleteSelected = () => {
         if (!selectedNodeId)
@@ -96,7 +105,7 @@ const RoadmapBuilderPage = () => {
         setEdges((eds) => eds.filter((e) => e.source !== selectedNodeId && e.target !== selectedNodeId));
         setSelectedNodeId(null);
     };
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!roadmapId)
             return;
         const roadmap = {
@@ -107,11 +116,23 @@ const RoadmapBuilderPage = () => {
             edges,
             updatedAt: new Date().toISOString(),
         };
-        saveRoadmap(roadmap);
-        if (!routeId || routeId.startsWith("tpl-")) {
-            navigate(`/roadmap/${roadmapId}`, { replace: true });
+        try {
+            const saved = await roadmapService.saveRoadmap(roadmap);
+            // If server returned a new id, update route
+            const newId = saved?.id ?? roadmapId;
+            if (!routeId || routeId.startsWith("tpl-")) {
+                navigate(`/roadmap/${newId}`, { replace: true });
+            }
+            setRoadmapId(newId);
+            toast.success("Roadmap saved");
         }
-        toast.success("Roadmap saved");
+        catch (err) {
+            console.error(err);
+            toast.error("Save failed — falling back to local save");
+            // Fallback to local save
+            await roadmapService.saveRoadmap(roadmap);
+            toast.success("Roadmap saved locally");
+        }
     };
     const copyShareLink = async () => {
         const url = `${window.location.origin}/share/${shareToken}`;

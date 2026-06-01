@@ -14,6 +14,7 @@ import RoadmapBuilderPage from "./pages/RoadmapBuilderPage";
 import JourneyDashboardPage from "./pages/JourneyDashboardPage";
 import AdvisorDashboardPage from "./pages/AdvisorDashboardPage";
 import SharedRoadmapPage from "./pages/SharedRoadmapPage";
+import MigrateLocalRoadmapsPage from "./pages/MigrateLocalRoadmapsPage";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/journey" element={<JourneyDashboardPage />} />
                 <Route path="/advisor" element={<AdvisorDashboardPage />} />
                 <Route path="/advisor/:studentId" element={<AdvisorDashboardPage />} />
+                <Route path="/migrate" element={<MigrateLocalRoadmapsPage />} />
               </Route>
             </Routes>
           </div>

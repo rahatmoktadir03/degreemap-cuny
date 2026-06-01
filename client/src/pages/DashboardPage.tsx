@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   BookOpen,
@@ -13,44 +13,78 @@ import {
 } from "lucide-react";
 import { useAuth } from "../store/AuthContext";
 import { cunyCampuses } from "../data/cunyCampuses";
-import { deleteRoadmap, listRoadmaps } from "../services/roadmapStore";
+import * as roadmapService from "../services/roadmapService";
 import { roadmapTemplates } from "../data/roadmapTemplates";
 import toast from "react-hot-toast";
+import type { StoredRoadmap } from "../services/roadmapStore";
+import type { RoadmapNodeData } from "../data/roadmapTemplates";
+import type { Node as RFNode } from "reactflow";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { user, updateProfile } = useAuth();
   const name = (user?.email?.split("@")[0] ?? "student").replace(/\.|_/g, " ");
 
-  const [roadmaps, setRoadmaps] = useState(() => listRoadmaps());
+  const [roadmaps, setRoadmaps] = useState<StoredRoadmap[]>([]);
   const [school, setSchool] = useState((user?.user_metadata?.school as string) ?? "");
   const [major, setMajor] = useState((user?.user_metadata?.major as string) ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
 
   const stats = useMemo(() => {
     const earned = roadmaps.reduce(
-      (acc, r) =>
-        acc + r.nodes.filter((n) => n.data.status === "complete").reduce((a, n) => a + (n.data.credits ?? 0), 0),
+      (acc, r: StoredRoadmap) =>
+        acc +
+        r.nodes
+          .filter((n: RFNode<RoadmapNodeData>) => n.data.status === "complete")
+          .reduce((a: number, n: RFNode<RoadmapNodeData>) => a + (n.data.credits ?? 0), 0),
       0
     );
     const inProg = roadmaps.reduce(
-      (acc, r) =>
-        acc + r.nodes.filter((n) => n.data.status === "in-progress").reduce((a, n) => a + (n.data.credits ?? 0), 0),
+      (acc, r: StoredRoadmap) =>
+        acc +
+        r.nodes
+          .filter((n: RFNode<RoadmapNodeData>) => n.data.status === "in-progress")
+          .reduce((a: number, n: RFNode<RoadmapNodeData>) => a + (n.data.credits ?? 0), 0),
       0
     );
     return [
-      { label: "Credits earned", value: `${earned}`, trend: `+${inProg} in progress`, icon: GraduationCap },
+      {
+        label: "Credits earned",
+        value: `${earned}`,
+        trend: `+${inProg} in progress`,
+        icon: GraduationCap,
+      },
       { label: "Current GPA", value: "3.62", trend: "↑ from 3.55", icon: TrendingUp },
-      { label: "Roadmaps", value: `${roadmaps.length}`, trend: roadmaps.length ? "Active plans" : "None yet", icon: BookOpen },
+      {
+        label: "Roadmaps",
+        value: `${roadmaps.length}`,
+        trend: roadmaps.length ? "Active plans" : "None yet",
+        icon: BookOpen,
+      },
       { label: "Next milestone", value: "60 cr", trend: "Junior status", icon: Sparkles },
     ];
   }, [roadmaps]);
 
-  const handleRemove = (id: string) => {
-    deleteRoadmap(id);
-    setRoadmaps(listRoadmaps());
+  const handleRemove = async (id: string) => {
+    try {
+      if (roadmapService) {
+        await roadmapService.deleteRoadmap?.(id as string);
+      }
+    } catch (err) {
+      // ignore
+    }
+    const list = await roadmapService.listRoadmaps();
+    setRoadmaps(list);
     toast.success("Roadmap removed");
   };
+
+  // load roadmaps
+  useEffect(() => {
+    (async () => {
+      const list = await roadmapService.listRoadmaps();
+      setRoadmaps(list);
+    })();
+  }, []);
 
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,11 +169,14 @@ const DashboardPage = () => {
                 </div>
               )}
 
-              {roadmaps.map((r) => {
-                const total = r.nodes.reduce((a, n) => a + (n.data.credits ?? 0), 0);
+              {roadmaps.map((r: StoredRoadmap) => {
+                const total = r.nodes.reduce(
+                  (a: number, n: RFNode<RoadmapNodeData>) => a + (n.data.credits ?? 0),
+                  0
+                );
                 const done = r.nodes
-                  .filter((n) => n.data.status === "complete")
-                  .reduce((a, n) => a + (n.data.credits ?? 0), 0);
+                  .filter((n: RFNode<RoadmapNodeData>) => n.data.status === "complete")
+                  .reduce((a: number, n: RFNode<RoadmapNodeData>) => a + (n.data.credits ?? 0), 0);
                 const pct = total > 0 ? Math.round((done / total) * 100) : 0;
                 return (
                   <div

@@ -12,7 +12,11 @@ import {
   YAxis,
 } from "recharts";
 import { Award, CheckCircle2, Circle, Flag, GraduationCap, Target, TrendingUp } from "lucide-react";
-import { listRoadmaps } from "../services/roadmapStore";
+import * as roadmapService from "../services/roadmapService";
+import { useEffect, useState } from "react";
+import type { StoredRoadmap } from "../services/roadmapStore";
+import type { RoadmapNodeData } from "../data/roadmapTemplates";
+import type { Node as RFNode } from "reactflow";
 import type { RoadmapNodeStatus } from "../data/roadmapTemplates";
 
 const milestonesPlan = [
@@ -35,12 +39,19 @@ const STATUS_COLORS: Record<RoadmapNodeStatus | "remaining", string> = {
 const DEGREE_TOTAL = 120;
 
 const JourneyDashboardPage = () => {
-  const roadmaps = useMemo(() => listRoadmaps(), []);
+  const [roadmaps, setRoadmaps] = useState<StoredRoadmap[]>([]);
+  useEffect(() => {
+    (async () => {
+      const list = await roadmapService.listRoadmaps();
+      setRoadmaps(list);
+    })();
+  }, []);
+
   const primary = roadmaps[0];
 
   const credits = useMemo(() => {
-    const acc = { complete: 0, "in-progress": 0, planned: 0 };
-    primary?.nodes.forEach((n) => {
+    const acc: Record<RoadmapNodeStatus, number> = { complete: 0, "in-progress": 0, planned: 0 };
+    primary?.nodes.forEach((n: RFNode<RoadmapNodeData>) => {
       const c = n.data.credits ?? 0;
       if (!c) return;
       acc[n.data.status] += c;
@@ -81,7 +92,9 @@ const JourneyDashboardPage = () => {
       return {
         semester: sem,
         complete: entries.filter((e) => e.status === "complete").reduce((a, e) => a + e.credits, 0),
-        progress: entries.filter((e) => e.status === "in-progress").reduce((a, e) => a + e.credits, 0),
+        progress: entries
+          .filter((e) => e.status === "in-progress")
+          .reduce((a, e) => a + e.credits, 0),
         planned: entries.filter((e) => e.status === "planned").reduce((a, e) => a + e.credits, 0),
       };
     });
@@ -90,7 +103,12 @@ const JourneyDashboardPage = () => {
   const stats = [
     { label: "Credits earned", value: `${earned}`, suffix: `/ ${DEGREE_TOTAL}`, icon: TrendingUp },
     { label: "In progress", value: `${inProgress}`, suffix: "cr", icon: GraduationCap },
-    { label: "Major", value: primary?.major ?? primary?.title ?? "BS CS", suffix: "", icon: Target },
+    {
+      label: "Major",
+      value: primary?.major ?? primary?.title ?? "BS CS",
+      suffix: "",
+      icon: Target,
+    },
     { label: "Expected grad", value: "2028", suffix: "", icon: Flag },
   ];
 
@@ -156,9 +174,19 @@ const JourneyDashboardPage = () => {
                           fontSize: 12,
                         }}
                       />
-                      <Bar dataKey="complete" stackId="a" fill={STATUS_COLORS.complete} radius={[0, 0, 0, 0]} />
+                      <Bar
+                        dataKey="complete"
+                        stackId="a"
+                        fill={STATUS_COLORS.complete}
+                        radius={[0, 0, 0, 0]}
+                      />
                       <Bar dataKey="progress" stackId="a" fill={STATUS_COLORS["in-progress"]} />
-                      <Bar dataKey="planned" stackId="a" fill={STATUS_COLORS.planned} radius={[6, 6, 0, 0]} />
+                      <Bar
+                        dataKey="planned"
+                        stackId="a"
+                        fill={STATUS_COLORS.planned}
+                        radius={[6, 6, 0, 0]}
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -172,7 +200,9 @@ const JourneyDashboardPage = () => {
               <ResponsiveContainer>
                 <PieChart>
                   <Pie
-                    data={pieData.length ? pieData : [{ name: "No data", value: 1, color: "#e2e8f0" }]}
+                    data={
+                      pieData.length ? pieData : [{ name: "No data", value: 1, color: "#e2e8f0" }]
+                    }
                     innerRadius={70}
                     outerRadius={100}
                     paddingAngle={2}

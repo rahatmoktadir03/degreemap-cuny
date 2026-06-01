@@ -4,10 +4,8 @@ import ReactFlow, { Background, Controls, MiniMap, type Edge, type Node } from "
 import "reactflow/dist/style.css";
 import { ArrowLeft, Eye } from "lucide-react";
 import RoadmapNode from "../components/roadmap/RoadmapNode";
-import {
-  getRoadmapByShareToken,
-  type StoredRoadmap,
-} from "../services/roadmapStore";
+import type { StoredRoadmap } from "../services/roadmapStore";
+import * as roadmapService from "../services/roadmapService";
 import type { RoadmapNodeData } from "../data/roadmapTemplates";
 
 const nodeTypes = { roadmap: RoadmapNode };
@@ -17,7 +15,10 @@ const SharedRoadmapPage = () => {
   const [roadmap, setRoadmap] = useState<StoredRoadmap | null>(null);
 
   useEffect(() => {
-    setRoadmap(getRoadmapByShareToken(token));
+    (async () => {
+      const r = await roadmapService.getRoadmapByShareToken(token ?? "");
+      setRoadmap(r);
+    })();
   }, [token]);
 
   const nodes: Node<RoadmapNodeData>[] = useMemo(() => roadmap?.nodes ?? [], [roadmap]);
@@ -66,8 +67,8 @@ const SharedRoadmapPage = () => {
             </span>
             <h1 className="mt-2 text-3xl sm:text-4xl font-extrabold">{roadmap.title}</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Last updated {new Date(roadmap.updatedAt).toLocaleDateString()} ·{" "}
-              {completedCredits}/{totalCredits} credits complete
+              Last updated {new Date(roadmap.updatedAt).toLocaleDateString()} · {completedCredits}/
+              {totalCredits} credits complete
             </p>
           </div>
         </div>
