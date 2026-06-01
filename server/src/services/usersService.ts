@@ -17,7 +17,13 @@ export const getUserProfile = async (userId: string) => {
 
 export const updateUserProfile = async (
   userId: string,
-  updates: { name?: string; school?: string; major?: string }
+  updates: {
+    name?: string;
+    school?: string;
+    major?: string;
+    graduation_year?: number | null;
+    gpa?: number | null;
+  }
 ) => {
   const { data, error } = await supabaseAdmin
     .from("profiles")

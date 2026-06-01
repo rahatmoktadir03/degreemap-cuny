@@ -15,6 +15,8 @@ import { useAuth } from "../store/AuthContext";
 import { cunyCampuses } from "../data/cunyCampuses";
 import * as roadmapService from "../services/roadmapService";
 import { roadmapTemplates } from "../data/roadmapTemplates";
+import { apiEnabled, apiFetch } from "../services/apiClient";
+import { CREDIT_TIERS } from "../data/constants";
 import toast from "react-hot-toast";
 import type { StoredRoadmap } from "../services/roadmapStore";
 import type { RoadmapNodeData } from "../data/roadmapTemplates";
@@ -28,6 +30,9 @@ const DashboardPage = () => {
   const [roadmaps, setRoadmaps] = useState<StoredRoadmap[]>([]);
   const [school, setSchool] = useState((user?.user_metadata?.school as string) ?? "");
   const [major, setMajor] = useState((user?.user_metadata?.major as string) ?? "");
+  const [gpa, setGpa] = useState(
+    user?.user_metadata?.gpa != null ? String(user.user_metadata.gpa) : ""
+  );
   const [savingProfile, setSavingProfile] = useState(false);
 
   const stats = useMemo(() => {
@@ -47,6 +52,8 @@ const DashboardPage = () => {
           .reduce((a: number, n: RFNode<RoadmapNodeData>) => a + (n.data.credits ?? 0), 0),
       0
     );
+    // Next class-standing tier above current earned credits.
+    const nextTier = CREDIT_TIERS.find((t) => earned < t);
     return [
       {
         label: "Credits earned",
@@ -54,16 +61,26 @@ const DashboardPage = () => {
         trend: `+${inProg} in progress`,
         icon: GraduationCap,
       },
-      { label: "Current GPA", value: "3.62", trend: "↑ from 3.55", icon: TrendingUp },
+      {
+        label: "Current GPA",
+        value: gpa ? Number(gpa).toFixed(2) : "—",
+        trend: gpa ? "From your profile" : "Set in profile below",
+        icon: TrendingUp,
+      },
       {
         label: "Roadmaps",
         value: `${roadmaps.length}`,
         trend: roadmaps.length ? "Active plans" : "None yet",
         icon: BookOpen,
       },
-      { label: "Next milestone", value: "60 cr", trend: "Junior status", icon: Sparkles },
+      {
+        label: "Next milestone",
+        value: nextTier ? `${nextTier} cr` : "Degree done 🎓",
+        trend: nextTier ? `${nextTier - earned} cr to go` : "All credits planned",
+        icon: Sparkles,
+      },
     ];
-  }, [roadmaps]);
+  }, [roadmaps, gpa]);
 
   const handleRemove = async (id: string) => {
     try {
@@ -81,16 +98,37 @@ const DashboardPage = () => {
   // load roadmaps
   useEffect(() => {
     (async () => {
-      const list = await roadmapService.listRoadmaps();
-      setRoadmaps(list);
+      try {
+        const list = await roadmapService.listRoadmaps();
+        setRoadmaps(list);
+      } catch {
+        toast.error("Couldn't load your roadmaps");
+      }
     })();
   }, []);
 
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingProfile(true);
+    const gpaNum = gpa.trim() === "" ? undefined : Number(gpa);
+    if (gpaNum != null && (Number.isNaN(gpaNum) || gpaNum < 0 || gpaNum > 4)) {
+      toast.error("GPA must be between 0.00 and 4.00");
+      setSavingProfile(false);
+      return;
+    }
     try {
-      await updateProfile({ school, major });
+      await updateProfile({ school, major, gpa: gpaNum ?? null });
+      // Keep the profiles table (advisor source of truth) in sync when online.
+      if (apiEnabled) {
+        try {
+          await apiFetch("/api/users/me", {
+            method: "PUT",
+            body: JSON.stringify({ school, major, gpa: gpaNum ?? null }),
+          });
+        } catch {
+          /* metadata already updated; ignore server sync errors */
+        }
+      }
       toast.success("Profile updated");
     } catch {
       toast.error("Could not update profile");
@@ -266,6 +304,21 @@ const DashboardPage = () => {
                     value={major}
                     onChange={(e) => setMajor(e.target.value)}
                     placeholder="e.g. BS Computer Science"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    GPA (optional)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={4}
+                    step={0.01}
+                    value={gpa}
+                    onChange={(e) => setGpa(e.target.value)}
+                    aria-label="GPA"
+                    placeholder="e.g. 3.50"
                   />
                 </div>
                 <button

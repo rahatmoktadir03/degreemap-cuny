@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   school TEXT,
   major TEXT,
   graduation_year INTEGER,
+  gpa NUMERIC(3, 2) CHECK (gpa IS NULL OR (gpa >= 0 AND gpa <= 4)),
   role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'advisor', 'admin')),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

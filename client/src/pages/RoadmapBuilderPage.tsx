@@ -17,16 +17,19 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import toast from "react-hot-toast";
 import {
+  AlertTriangle,
   BookOpen,
   Check,
   Copy,
   Flag,
   Plus,
+  Redo2,
   Save,
   Sparkles,
   Target,
   Trash2,
   Trophy,
+  Undo2,
 } from "lucide-react";
 import RoadmapNode from "../components/roadmap/RoadmapNode";
 import {
@@ -36,6 +39,8 @@ import {
   type RoadmapNodeType,
   getTemplateById,
 } from "../data/roadmapTemplates";
+import { TERMS, semesterLabel, parseLegacySemester, type Term } from "../data/semester";
+import { DEGREE_TOTAL } from "../data/constants";
 import { type StoredRoadmap } from "../services/roadmapStore";
 import * as roadmapService from "../services/roadmapService";
 
@@ -74,6 +79,15 @@ const typeButtons: { type: RoadmapNodeType; label: string; icon: typeof BookOpen
 
 const statusOptions: RoadmapNodeStatus[] = ["planned", "in-progress", "complete"];
 
+// Backfill structured term/year on nodes loaded from older roadmaps that only
+// stored a freeform `semester` string.
+const normalizeNodes = (nodes: Node<RoadmapNodeData>[]): Node<RoadmapNodeData>[] =>
+  nodes.map((n) => {
+    if (n.data.term || !n.data.semester) return n;
+    const { term, year } = parseLegacySemester(n.data.semester);
+    return term ? { ...n, data: { ...n.data, term, year } } : n;
+  });
+
 const RoadmapBuilderPage = () => {
   const navigate = useNavigate();
   const { id: routeId } = useParams();
@@ -87,13 +101,48 @@ const RoadmapBuilderPage = () => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const nextIdRef = useRef(1);
 
+  // Save state: snapshot of what's persisted, plus an in-flight guard.
+  const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const lastSavedRef = useRef<string>("");
+  const snapshot = useMemo(() => JSON.stringify({ title, nodes, edges }), [title, nodes, edges]);
+  const isDirty = snapshot !== lastSavedRef.current;
+
+  // Undo/redo history of {nodes, edges} snapshots.
+  type HistEntry = { nodes: Node<RoadmapNodeData>[]; edges: Edge[] };
+  const historyRef = useRef<HistEntry[]>([]);
+  const histIndexRef = useRef(-1);
+  const isRestoringRef = useRef(false);
+  const [histVersion, setHistVersion] = useState(0); // forces re-render for button enable state
+
+  const resetHistory = useCallback((n: Node<RoadmapNodeData>[], e: Edge[]) => {
+    historyRef.current = [{ nodes: n, edges: e }];
+    histIndexRef.current = 0;
+    setHistVersion((v) => v + 1);
+  }, []);
+
+  // Seed the editor with a set of nodes/edges/title, marking it as the saved
+  // baseline so loading doesn't immediately read as "unsaved changes".
+  const seedEditor = useCallback(
+    (t: string, n: Node<RoadmapNodeData>[], e: Edge[], opts?: { dirty?: boolean }) => {
+      const norm = normalizeNodes(n);
+      setTitle(t);
+      setNodes(norm);
+      setEdges(e);
+      resetHistory(norm, e);
+      if (!opts?.dirty) {
+        lastSavedRef.current = JSON.stringify({ title: t, nodes: norm, edges: e });
+      }
+    },
+    [resetHistory]
+  );
+
   // Load existing roadmap or template, or start fresh
   useEffect(() => {
     if (!routeId) {
       setRoadmapId(roadmapService.generateRoadmapId());
       setShareToken(roadmapService.generateShareToken());
-      setNodes([]);
-      setEdges([]);
+      seedEditor("My CUNY Roadmap", [], []);
       return;
     }
     if (routeId.startsWith("tpl-")) {
@@ -101,9 +150,13 @@ const RoadmapBuilderPage = () => {
       if (tpl) {
         setRoadmapId(roadmapService.generateRoadmapId());
         setShareToken(roadmapService.generateShareToken());
-        setTitle(`${tpl.title} (from template)`);
-        setNodes(tpl.nodes.map((n) => ({ ...n, position: { ...n.position } })));
-        setEdges(tpl.edges.map((e) => ({ ...e })));
+        // A template is unsaved until the user saves it.
+        seedEditor(
+          `${tpl.title} (from template)`,
+          tpl.nodes.map((n) => ({ ...n, position: { ...n.position } })),
+          tpl.edges.map((e) => ({ ...e })),
+          { dirty: true }
+        );
         toast.success(`Loaded template: ${tpl.title}`);
         return;
       }
@@ -114,15 +167,15 @@ const RoadmapBuilderPage = () => {
       if (stored) {
         setRoadmapId(stored.id);
         setShareToken(stored.shareToken);
-        setTitle(stored.title);
-        setNodes(stored.nodes);
-        setEdges(stored.edges);
+        seedEditor(stored.title, stored.nodes, stored.edges);
         return;
       }
       // Unknown id — treat as new
       setRoadmapId(routeId);
       setShareToken(roadmapService.generateShareToken());
+      seedEditor("My CUNY Roadmap", [], []);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeId]);
 
   const onNodesChange = useCallback(
@@ -168,33 +221,113 @@ const RoadmapBuilderPage = () => {
     setSelectedNodeId(null);
   };
 
-  const handleSave = async () => {
-    if (!roadmapId) return;
-    const roadmap: StoredRoadmap = {
-      id: roadmapId,
-      title,
-      shareToken,
-      nodes,
-      edges,
-      updatedAt: new Date().toISOString(),
-    };
-    try {
-      const saved = await roadmapService.saveRoadmap(roadmap);
-      // If server returned a new id, update route
-      const newId = saved?.id ?? roadmapId;
-      if (!routeId || routeId.startsWith("tpl-")) {
-        navigate(`/roadmap/${newId}`, { replace: true });
+  const handleSave = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (!roadmapId || saving) return;
+      const silent = opts?.silent ?? false;
+      // Capture the snapshot being persisted so the dirty check clears exactly.
+      const persisted = JSON.stringify({ title, nodes, edges });
+      const roadmap: StoredRoadmap = {
+        id: roadmapId,
+        title,
+        shareToken,
+        nodes,
+        edges,
+        updatedAt: new Date().toISOString(),
+      };
+      setSaving(true);
+      try {
+        const saved = await roadmapService.saveRoadmap(roadmap);
+        const newId = saved?.id ?? roadmapId;
+        if (!routeId || routeId.startsWith("tpl-")) {
+          navigate(`/roadmap/${newId}`, { replace: true });
+        }
+        setRoadmapId(newId);
+        lastSavedRef.current = persisted;
+        setSavedAt(Date.now());
+        if (!silent) toast.success("Roadmap saved");
+      } catch (err) {
+        console.error(err);
+        if (!silent) toast.error("Save failed — falling back to local save");
+        await roadmapService.saveRoadmap(roadmap);
+        lastSavedRef.current = persisted;
+        setSavedAt(Date.now());
+        if (!silent) toast.success("Roadmap saved locally");
+      } finally {
+        setSaving(false);
       }
-      setRoadmapId(newId);
-      toast.success("Roadmap saved");
-    } catch (err) {
-      console.error(err);
-      toast.error("Save failed — falling back to local save");
-      // Fallback to local save
-      await roadmapService.saveRoadmap(roadmap);
-      toast.success("Roadmap saved locally");
+    },
+    [roadmapId, saving, title, nodes, edges, shareToken, routeId, navigate]
+  );
+
+  // Record undo/redo history when the graph changes (debounced), skipping
+  // changes that originate from an undo/redo restore.
+  useEffect(() => {
+    if (isRestoringRef.current) {
+      isRestoringRef.current = false;
+      return;
     }
-  };
+    const t = setTimeout(() => {
+      const idx = histIndexRef.current;
+      // Drop any redo branch, then push the new snapshot (cap at 50).
+      const next = historyRef.current.slice(0, idx + 1);
+      next.push({ nodes, edges });
+      historyRef.current = next.slice(-50);
+      histIndexRef.current = historyRef.current.length - 1;
+      setHistVersion((v) => v + 1);
+    }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes, edges]);
+
+  // Debounced auto-save whenever there are unsaved changes.
+  useEffect(() => {
+    if (!roadmapId || !isDirty || saving) return;
+    const t = setTimeout(() => {
+      void handleSave({ silent: true });
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [roadmapId, isDirty, saving, handleSave]);
+
+  const restore = useCallback((entry: HistEntry) => {
+    isRestoringRef.current = true;
+    setNodes(entry.nodes);
+    setEdges(entry.edges);
+    setSelectedNodeId(null);
+  }, []);
+
+  const undo = useCallback(() => {
+    if (histIndexRef.current <= 0) return;
+    histIndexRef.current -= 1;
+    restore(historyRef.current[histIndexRef.current]);
+    setHistVersion((v) => v + 1);
+  }, [restore]);
+
+  const redo = useCallback(() => {
+    if (histIndexRef.current >= historyRef.current.length - 1) return;
+    histIndexRef.current += 1;
+    restore(historyRef.current[histIndexRef.current]);
+    setHistVersion((v) => v + 1);
+  }, [restore]);
+
+  const canUndo = histIndexRef.current > 0;
+  const canRedo = histIndexRef.current < historyRef.current.length - 1;
+  void histVersion; // re-render trigger; value itself unused
+
+  // Keyboard shortcuts: Ctrl/Cmd+Z (undo), Ctrl/Cmd+Shift+Z (redo).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z") return;
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable) return;
+      e.preventDefault();
+      if (e.shiftKey) redo();
+      else undo();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undo, redo]);
 
   const copyShareLink = async () => {
     const url = `${window.location.origin}/share/${shareToken}`;
@@ -218,6 +351,7 @@ const RoadmapBuilderPage = () => {
         .reduce((sum, n) => sum + (n.data.credits ?? 0), 0),
     [nodes]
   );
+  const overBy = Math.max(0, totalCredits - DEGREE_TOTAL);
 
   return (
     <div className="bg-hero-gradient min-h-[calc(100vh-4rem)]">
@@ -235,11 +369,51 @@ const RoadmapBuilderPage = () => {
               className="mt-1 text-2xl sm:text-3xl font-extrabold border-transparent! bg-transparent! p-0! focus:shadow-none! w-full"
             />
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {totalCredits} planned cr · {completedCredits} completed cr · drag the canvas, connect
-              handles, and click a node to edit.
+              <span className={overBy > 0 ? "text-amber-600 dark:text-amber-400 font-semibold" : ""}>
+                {totalCredits} / {DEGREE_TOTAL} planned cr
+              </span>{" "}
+              · {completedCredits} completed cr · drag the canvas, connect handles, and click a node
+              to edit.
             </p>
+            {overBy > 0 && (
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                <AlertTriangle className="h-3.5 w-3.5" /> Over the {DEGREE_TOTAL}-credit target by{" "}
+                {overBy} cr
+              </p>
+            )}
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-slate-500 dark:text-slate-400 mr-1" aria-live="polite">
+              {saving
+                ? "Saving…"
+                : isDirty
+                  ? "Unsaved changes"
+                  : savedAt
+                    ? "Saved ✓"
+                    : ""}
+            </span>
+            <div className="inline-flex rounded-xl border border-slate-300 dark:border-slate-600 overflow-hidden">
+              <button
+                type="button"
+                onClick={undo}
+                disabled={!canUndo}
+                aria-label="Undo"
+                title="Undo (Ctrl/Cmd+Z)"
+                className="px-2.5 py-2 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Undo2 className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={redo}
+                disabled={!canRedo}
+                aria-label="Redo"
+                title="Redo (Ctrl/Cmd+Shift+Z)"
+                className="px-2.5 py-2 border-l border-slate-300 dark:border-slate-600 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Redo2 className="h-4 w-4" />
+              </button>
+            </div>
             <button
               type="button"
               onClick={copyShareLink}
@@ -249,8 +423,9 @@ const RoadmapBuilderPage = () => {
             </button>
             <button
               type="button"
-              onClick={handleSave}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md"
+              onClick={() => handleSave()}
+              disabled={saving}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md disabled:opacity-60"
             >
               <Save className="h-4 w-4" /> Save
             </button>
@@ -368,14 +543,47 @@ const RoadmapBuilderPage = () => {
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                      Semester
+                      Term
                     </label>
-                    <input
-                      value={selectedNode.data.semester ?? ""}
-                      onChange={(e) => updateSelected({ semester: e.target.value })}
-                      placeholder="e.g. Fall 2025"
-                    />
+                    <select
+                      aria-label="Term"
+                      value={selectedNode.data.term ?? ""}
+                      onChange={(e) => {
+                        const term = (e.target.value || undefined) as Term | undefined;
+                        updateSelected({
+                          term,
+                          semester: semesterLabel(term, selectedNode.data.year),
+                        });
+                      }}
+                    >
+                      <option value="">—</option>
+                      {TERMS.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    Year
+                  </label>
+                  <input
+                    type="number"
+                    min={2000}
+                    max={2100}
+                    value={selectedNode.data.year ?? ""}
+                    onChange={(e) => {
+                      const year = e.target.value ? Number(e.target.value) : undefined;
+                      updateSelected({
+                        year,
+                        semester: semesterLabel(selectedNode.data.term, year),
+                      });
+                    }}
+                    aria-label="Year"
+                    placeholder="e.g. 2025"
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">

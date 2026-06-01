@@ -13,16 +13,38 @@ const nodeTypes = { roadmap: RoadmapNode };
 const SharedRoadmapPage = () => {
   const { token = "" } = useParams();
   const [roadmap, setRoadmap] = useState<StoredRoadmap | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
     (async () => {
-      const r = await roadmapService.getRoadmapByShareToken(token ?? "");
-      setRoadmap(r);
+      try {
+        const r = await roadmapService.getRoadmapByShareToken(token ?? "");
+        if (!cancelled) setRoadmap(r);
+      } catch {
+        if (!cancelled) setRoadmap(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
 
   const nodes: Node<RoadmapNodeData>[] = useMemo(() => roadmap?.nodes ?? [], [roadmap]);
   const edges: Edge[] = useMemo(() => roadmap?.edges ?? [], [roadmap]);
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold text-slate-600 dark:text-slate-300">
+          Loading shared roadmap…
+        </h1>
+      </div>
+    );
+  }
 
   if (!roadmap) {
     return (
