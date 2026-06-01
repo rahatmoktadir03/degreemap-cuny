@@ -14,8 +14,9 @@ const navItem = (active: boolean) =>
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user, signOut, isDemoMode } = useAuth();
+  const { user, signOut, isDemoMode, role } = useAuth();
   const [open, setOpen] = useState(false);
+  const isAdvisor = role === "advisor" || role === "admin";
 
   const handleLogout = async () => {
     try {
@@ -48,6 +49,11 @@ const Navbar = () => {
                 Demo
               </span>
             )}
+            {isAdvisor && (
+              <span className="hidden sm:inline ml-2 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
+                Advisor
+              </span>
+            )}
           </button>
 
           {/* Desktop nav */}
@@ -66,6 +72,11 @@ const Navbar = () => {
                 <NavLink to="/journey" className={({ isActive }) => navItem(isActive)}>
                   Journey
                 </NavLink>
+                {isAdvisor && (
+                  <NavLink to="/advisor" className={({ isActive }) => navItem(isActive)}>
+                    Advisor
+                  </NavLink>
+                )}
               </>
             )}
           </div>
@@ -145,6 +156,15 @@ const Navbar = () => {
               >
                 Journey
               </NavLink>
+              {isAdvisor && (
+                <NavLink
+                  to="/advisor"
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) => `block ${navItem(isActive)}`}
+                >
+                  Advisor
+                </NavLink>
+              )}
             </>
           )}
           <div className="pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">

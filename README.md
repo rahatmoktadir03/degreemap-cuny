@@ -1,358 +1,210 @@
 # DegreeMap – CUNY Degree Planning Tool
 
-A comprehensive full-stack degree planning application built for CUNY students. DegreeMap helps students plan their academic roadmap, explore CUNY campuses, track progress, and share their plans with advisors.
+A full-stack degree planning app for CUNY students. DegreeMap helps students explore CUNY campuses, build a visual semester-by-semester roadmap, track progress toward graduation, share plans, and lets advisors review their students' roadmaps.
 
 ## 🎯 Features
 
 ### 📍 Campus Explorer
+- Interactive Leaflet map of all 25 CUNY campuses
+- Search and filter by name, borough, and campus type (Senior / Community / Graduate)
+- Per-campus detail page with programs, stats, and student reviews
 
-- Interactive map of all CUNY campuses (City College, Hunter, Queens, Brooklyn, etc.)
-- Search and filter schools by name
-- View campus statistics: location, established year, student population
-- Campus details sidebar with advanced filtering and sorting
+### ⭐ Campus Reviews
+- Rate campuses (1–5) with written reviews and category breakdowns
+- Reviews stored in Supabase and visible to everyone
 
-### 🗺️ Roadmap Builder
-
-- Visual roadmap canvas using React Flow
-- Add custom course nodes with:
-  - Course title and credits
-  - Semester assignment (Fall/Spring/Summer)
-  - Status tracking (Planned, In Progress, Completed)
-  - Custom notes
-- Four node types: Course Node, Milestone Node, Elective Node, Career Goal Node
-- Connect nodes to show course prerequisites
-- Drag-and-drop canvas with zoom and pan controls
-- Save roadmaps to database automatically
+### 🗺️ Roadmap Builder (React Flow)
+- Visual drag-and-drop canvas with four node types: Course, Milestone, Elective, Career Goal
+- Per-node editing: label, credits, **structured term + year**, status (Planned / In Progress / Complete), notes
+- **Auto-save** with a saved/unsaved indicator, **undo/redo** (Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z)
+- **Credit-total validation** against the 120-credit degree target
+- Start from prebuilt templates (CS @ Hunter, Nursing @ Hunter, BBA @ Baruch)
 
 ### 📊 My Journey Dashboard
+- Live degree-progress bar and credit breakdown (Recharts pie + chronological per-semester bars)
+- Milestones derived from real earned credits (30/60/90/120 tiers)
+- Expected graduation and major pulled from your profile
 
-- Personal progress tracking dashboard
-- Roadmap selection grid with progress previews
-- Progress metrics: % completed, % in-progress, % planned
-- Credits tracker with circular progress chart
-- Semester timeline view with course status breakdown
-- Quick navigation to edit roadmaps
+### 🎓 Student Dashboard
+- Stat cards (credits earned, GPA, roadmap count, next milestone) computed from real data
+- Editable profile: name, home campus, major, and **GPA**
+- Roadmap list with progress bars + quick links
+
+### 🧑‍🏫 Advisor Dashboard
+- Role-gated student roster backed by the database (search, status, credits, GPA)
+- Per-student detail view with notes/comments
+- Advisor accounts get an **Advisor badge** and nav link
 
 ### 🔗 Shareable Roadmaps
+- Generate read-only share links; no auth required to view
 
-- Generate unique read-only links to share roadmaps
-- Share via native share dialog (mobile) or copy to clipboard
-- Public roadmap viewer with full React Flow canvas display
-- No authentication required to view shared roadmaps
-
-### 🌙 Dark Mode
-
-- Toggle between light and dark themes
-- Persistent preference saved to localStorage
-- Respects system dark mode preference on first visit
-- Smooth transitions between themes
-
-### 📱 Responsive Design
-
-- Mobile-first approach with Tailwind CSS breakpoints
-- Collapsible sidebars on mobile with hamburger toggles
-- Responsive grid layouts for all screen sizes
-- Touch-friendly navigation
+### 🌙 Dark Mode + 📱 Responsive
+- Class-based dark mode (Tailwind v4 `@custom-variant`), persisted to localStorage
+- Mobile-first responsive layouts
 
 ### 🔐 Authentication
-
-- Secure JWT-based authentication with Supabase
-- Sign up and login functionality
-- Protected routes for authenticated users
-- Session persistence
+- Supabase Auth (JWT); protected routes; graceful demo-mode fallback when offline
 
 ## 🛠 Tech Stack
 
-### Frontend
+**Frontend:** React 19 + TypeScript, Vite 5, Tailwind CSS 4, React Router 6, React Flow 11, React Leaflet, Recharts, lucide-react, react-hot-toast
 
-- **React** 19.2.5 with TypeScript (strict mode)
-- **Vite** 8.0.10 for fast development and builds
-- **Tailwind CSS** 4.2.4 for responsive styling
-- **React Router** 6 for navigation
-- **React Flow** 11.11.4 for interactive roadmap canvas
-- **Leaflet** 1.9.4 + react-leaflet 5.0.0 for maps
-- **Recharts** 3.8.1 for data visualization
-- **Axios** for API calls
+**Backend:** Express 4 + TypeScript (ES modules, ts-node), Supabase JS
 
-### Backend
-
-- **Express.js** 4.21.1 with TypeScript
-- **Supabase** PostgreSQL database
-- **Supabase Auth** JWT-based authentication
-- **Node.js** runtime with ES modules
-
-### Database
-
-- **PostgreSQL** (via Supabase)
-- Tables: `schools`, `profiles`, `roadmaps`
-- Row Level Security (RLS) for data protection
+**Database:** Supabase PostgreSQL with Row Level Security
 
 ## 📋 Project Structure
 
 ```
 degreemap-cuny/
-├── client/                    # React + Vite frontend
+├── client/                 # React + Vite frontend
 │   ├── src/
-│   │   ├── components/       # Reusable UI components
-│   │   │   ├── journey/      # Dashboard components
-│   │   │   ├── roadmap/      # Builder components
-│   │   │   ├── SchoolMap.tsx
-│   │   │   ├── SchoolSearch.tsx
-│   │   │   ├── DarkModeToggle.tsx
-│   │   │   └── ShareButton.tsx
-│   │   ├── pages/            # Page components
-│   │   │   ├── LandingPage.tsx
-│   │   │   ├── ExplorePage.tsx
-│   │   │   ├── DashboardPage.tsx
-│   │   │   ├── RoadmapBuilderPage.tsx
-│   │   │   ├── JourneyDashboardPage.tsx
-│   │   │   └── PublicRoadmapPage.tsx
-│   │   ├── services/         # API service calls
-│   │   │   ├── schoolService.ts
-│   │   │   ├── roadmapService.ts
-│   │   │   └── authService.ts
-│   │   ├── store/            # Context providers
-│   │   │   ├── AuthContext.tsx
-│   │   │   └── DarkModeContext.tsx
-│   │   ├── types/            # TypeScript type definitions
+│   │   ├── components/      # Navbar, CampusMap, roadmap/, ui/, ...
+│   │   ├── pages/           # Landing, Explore, SchoolDetail, Dashboard,
+│   │   │                    # RoadmapBuilder, Journey, Advisor, SharedRoadmap, ...
+│   │   ├── services/        # apiClient, roadmapService, advisorService, supabase
+│   │   ├── store/           # AuthContext, DarkModeContext
+│   │   ├── data/            # cunyCampuses, roadmapTemplates, semester, constants
 │   │   └── App.tsx
-│   ├── vite.config.ts
+│   ├── vercel.json          # SPA rewrites for Vercel
 │   └── package.json
 │
-├── server/                    # Express backend
+├── server/                 # Express backend
 │   ├── src/
-│   │   ├── routes/           # API endpoints
-│   │   ├── controllers/       # Request handlers
-│   │   ├── services/         # Business logic
-│   │   ├── middleware/       # Authentication, validation
+│   │   ├── routes/          # auth, schools(reviews), users, roadmaps, advisor
+│   │   ├── controllers/     # request handlers
+│   │   ├── services/        # Supabase data access
+│   │   ├── middleware/      # JWT auth
 │   │   └── index.ts
-│   ├── tsconfig.json
+│   ├── DATABASE_SETUP.sql           # canonical fresh-install schema
+│   ├── MIGRATION_2026-05-30.sql     # additive: roadmaps cols, role, comments
+│   ├── MIGRATION_2026-06-01.sql     # additive: profiles.gpa
 │   └── package.json
-│
-├── IMPLEMENTATION.md         # Phase-by-phase progress log
-├── COPILOT_PROMPT.md        # Project requirements
-└── README.md                # This file
+└── README.md
 ```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+- Node.js 18+ and npm
+- A Supabase project (free tier is fine)
 
-- Node.js 16+ and npm
-- Supabase account (free tier available)
-- Git
+### 1. Install
+```bash
+cd client && npm install
+cd ../server && npm install
+```
 
-### Installation
+### 2. Environment variables
+`client/.env`:
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_API_URL=http://localhost:5000
+```
+`server/.env`:
+```
+PORT=5000
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+FRONTEND_URL=http://localhost:5173
+```
+> `SUPABASE_SERVICE_ROLE_KEY` is secret — keep it server-side only. The anon key is safe to expose in the client.
 
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd degreemap-cuny
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   # Install client dependencies
-   cd client
-   npm install
-
-   # Install server dependencies
-   cd ../server
-   npm install
-   ```
-
-3. **Set up environment variables**
-
-   Create `.env.local` in `client/`:
-
-   ```
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key
-   VITE_API_URL=http://localhost:5000
-   ```
-
-   Create `.env` in `server/`:
-
-   ```
-   PORT=5000
-   SUPABASE_URL=https://your-project.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-   SUPABASE_ANON_KEY=your-anon-key
-   NODE_ENV=development
-   ```
-
-4. **Set up Supabase database**
-
-   In your Supabase dashboard, run these SQL commands:
-
+### 3. Set up the database
+In the Supabase SQL editor:
+1. Run **`server/DATABASE_SETUP.sql`** for a fresh project (it includes `profiles`, `roadmaps`, `roadmap_comments`, `journey_milestones`, `campus_reviews`, `profiles.gpa`, `profiles.role`, and RLS policies).
+   - For an *existing* project, run the additive migrations instead: `MIGRATION_2026-05-30.sql` then `MIGRATION_2026-06-01.sql`.
+2. Add the **new-user trigger** so each signup automatically gets a `profiles` row:
    ```sql
-   -- Create schools table
-   CREATE TABLE schools (
-     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-     name TEXT NOT NULL,
-     location TEXT,
-     established INTEGER,
-     student_population INTEGER,
-     website TEXT,
-     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-   );
+   create or replace function public.handle_new_user()
+   returns trigger language plpgsql security definer set search_path = public as $$
+   begin
+     insert into public.profiles (id, name, school, major)
+     values (new.id,
+             new.raw_user_meta_data->>'name',
+             new.raw_user_meta_data->>'school',
+             new.raw_user_meta_data->>'major')
+     on conflict (id) do nothing;
+     return new;
+   end; $$;
 
-   -- Create roadmaps table
-   CREATE TABLE roadmaps (
-     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-     user_id UUID REFERENCES auth.users,
-     title TEXT NOT NULL,
-     description TEXT,
-     nodes JSONB,
-     edges JSONB,
-     share_id TEXT UNIQUE,
-     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-   );
-
-   -- Create profiles table
-   CREATE TABLE profiles (
-     id UUID PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
-     display_name TEXT,
-     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-   );
+   drop trigger if exists on_auth_user_created on auth.users;
+   create trigger on_auth_user_created
+     after insert on auth.users
+     for each row execute function public.handle_new_user();
    ```
+> Campus catalog data lives in the frontend (`client/src/data/cunyCampuses.ts`) — there is no `schools` table.
 
-### Running Locally
+### 4. Run locally
+```bash
+# terminal 1
+cd server && npm run dev      # http://localhost:5000
 
-1. **Start the backend server**
+# terminal 2
+cd client && npm run dev      # http://localhost:5173
+```
 
-   ```bash
-   cd server
-   npm run dev
-   ```
+## 🧑‍🏫 Making a user an advisor
 
-   Server runs on `http://localhost:5000`
+New accounts default to `role = 'student'`. To promote one (after it has registered):
+```sql
+UPDATE profiles
+SET role = 'advisor'
+WHERE id = (SELECT id FROM auth.users WHERE email = 'advisor@example.com');
+```
+Once promoted, that account sees an **Advisor** badge + nav link and can open `/advisor`.
 
-2. **Start the frontend (in new terminal)**
-   ```bash
-   cd client
-   npm run dev
-   ```
-   App opens at `http://localhost:5173`
+## 🔄 Key API Endpoints
 
-## 📖 Usage
+**Auth:** `POST /api/auth/register`, `POST /api/auth/login`
 
-### Creating a Roadmap
+**Users:** `GET /api/users/me`, `PUT /api/users/me` (name, school, major, graduation_year, gpa)
 
-1. Log in or sign up
-2. Click "New Roadmap" on dashboard
-3. Click nodes on the canvas to add courses
-4. Drag to create connections between courses
-5. Click nodes to edit course details
-6. Changes auto-save to database
+**Roadmaps (auth):** `POST /api/roadmaps`, `GET /api/roadmaps/mine`, `GET /api/roadmaps/detail/:id`, `PUT /api/roadmaps/:id`, `DELETE /api/roadmaps/:id` · public: `GET /api/roadmaps/templates`, `GET /api/roadmaps/public/:shareId`
 
-### Tracking Progress
+**Reviews:** `POST` / `GET /api/schools/:schoolId/reviews`, `DELETE /api/schools/:schoolId/reviews/:reviewId`
 
-1. Navigate to "My Journey"
-2. Select a roadmap to view
-3. Update course status (Complete, In Progress, Planned)
-4. View progress metrics and credits tracking
-5. Explore your semester timeline
+**Advisor (role-gated):** `GET /api/advisor/students`, `GET /api/advisor/students/:studentId/roadmaps`, `GET`/`POST /api/advisor/roadmaps/:roadmapId/comments`
 
-### Sharing a Roadmap
+## ☁️ Deployment (Vercel frontend + Node backend)
 
-1. On your dashboard, click "Share" on a roadmap
-2. Copy the share link
-3. Share via messaging, email, or social media
-4. Recipients can view without logging in
+DegreeMap is two apps: a static Vite **frontend** and a long-running Express **backend**. Vercel hosts the frontend; deploy the Express server to a Node host (e.g. **Render** or **Railway**).
 
-### Exploring CUNY Campuses
+### Backend (Render / Railway)
+1. New Web Service from this repo, **root directory `server`**.
+2. Build: `npm install && npm run build` · Start: `npm start`.
+3. Env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `FRONTEND_URL` (your Vercel URL, for CORS). `PORT` is provided by the host and read automatically.
+4. Note the public URL (e.g. `https://degreemap-api.onrender.com`).
 
-1. Go to "Explore" page
-2. View interactive map of CUNY schools
-3. Search for specific schools
-4. Sort by location, student population, etc.
-5. View school details and statistics
+### Frontend (Vercel)
+1. Import the repo; set **Root Directory** to `client`.
+2. Framework preset: **Vite** · Build: `npm run build` · Output: `dist`.
+3. Environment variables:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_API_URL` = your backend URL from above (not `localhost`)
+4. SPA routing is handled by `client/vercel.json` (rewrites all paths to `index.html`).
 
-## 🔄 API Endpoints
-
-### Schools
-
-- `GET /api/schools` - Get all schools
-- `GET /api/schools/:id` - Get school details
-- `GET /api/schools/search` - Search schools
-
-### Roadmaps (Protected)
-
-- `GET /api/roadmaps` - Get user's roadmaps
-- `POST /api/roadmaps` - Create new roadmap
-- `GET /api/roadmaps/:id` - Get roadmap details
-- `PUT /api/roadmaps/:id` - Update roadmap
-- `DELETE /api/roadmaps/:id` - Delete roadmap
-- `GET /api/roadmaps/public/:shareId` - Get public roadmap (no auth required)
-
-### Authentication
-
-- `POST /auth/signup` - Register new user
-- `POST /auth/login` - Login user
-- `POST /auth/logout` - Logout user
-- `GET /auth/me` - Get current user
-
-## 🎨 Customization
-
-### Tailwind Configuration
-
-- Colors: Primary (sky) and secondary (teal) with custom shades
-- Breakpoints: sm (640px), lg (1024px)
-- Dark mode: Class-based strategy using `dark:` prefix
-
-### React Flow Customization
-
-- Custom node types: CourseNode, MilestoneNode, ElectiveNode, CareerGoalNode
-- Minimap and controls enabled
-- Smooth interactions with mouse events
+### Don't forget
+- Apply `DATABASE_SETUP.sql` (or the migrations) **and** the `handle_new_user` trigger to the Supabase project the deployment uses.
+- Set the backend's `FRONTEND_URL` to the deployed Vercel domain so CORS allows it.
+- Without a deployed backend the app still runs (Supabase auth + localStorage roadmaps), but server persistence, reviews, and the advisor view require it.
 
 ## 🐛 Troubleshooting
-
-### Build Issues
-
-- Clear `node_modules` and reinstall: `npm ci`
-- Clear Vite cache: `rm -rf client/.vite`
-- Check TypeScript: `npm run type-check`
-
-### Database Connection
-
-- Verify Supabase credentials in `.env`
-- Check RLS policies allow authenticated users
-- Ensure tables exist with correct schema
-
-### Dark Mode Not Persisting
-
-- Check browser localStorage is enabled
-- Clear localStorage: `localStorage.clear()` in console
-- Check `DarkModeContext.tsx` for correct provider wrapping
+- **`column ... does not exist`** errors from the API → your Supabase project is behind on migrations; run `DATABASE_SETUP.sql` or the migration files.
+- **"Couldn't load your roadmaps"** → the backend isn't running / `VITE_API_URL` is wrong.
+- **Advisor view shows an access error** → the account isn't `role = 'advisor'`, or it's a demo-mode session (no auth token).
+- **No profile row after signup** → add the `handle_new_user` trigger above.
 
 ## 📝 Future Enhancements
-
-- Campus review and rating system
-- Advisor view dashboard with student roadmaps
-- Email notifications for roadmap updates
+- Server-side input validation (zod) and rate limiting
+- Automated test suite
 - Export roadmap as PDF
-- Integration with CUNY registration system
-- Mobile native app
-- Course recommendation engine
+- Email notifications
 
 ## 📄 License
-
-MIT License - See LICENSE file for details
-
-## 👥 Contributors
-
-Created as a CUNY degree planning tool to help students visualize their academic journey.
-
-## 📞 Support
-
-For issues and questions, please open a GitHub issue or contact the development team.
+MIT License — see LICENSE file.
 
 ---
-
-**Current Version**: Phase 5 Complete (Responsive + Dark Mode + Shareable Links)
-**Last Updated**: May 9, 2026
+**Last Updated:** June 2026

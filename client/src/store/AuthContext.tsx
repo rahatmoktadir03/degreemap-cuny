@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase, hasSupabase } from "../services/supabase";
+import { apiEnabled, apiFetch } from "../services/apiClient";
 
 type DemoUser = {
   id: string;
@@ -11,6 +12,7 @@ interface AuthContextType {
   user: DemoUser | null;
   loading: boolean;
   isDemoMode: boolean;
+  role: string | null;
   signUp: (email: string, password: string, data?: Record<string, unknown>) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -62,8 +64,30 @@ function writeDemoUser(user: DemoUser | null) {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<DemoUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
   // Start in demo mode if there's no Supabase client; we'll also fall back to demo on network errors.
   const [isDemoMode, setIsDemoMode] = useState<boolean>(!hasSupabase);
+
+  // Fetch the server-side role (lives in `profiles`, not in auth metadata) so
+  // the UI can reflect advisor status. Best-effort; ignored in demo/offline.
+  useEffect(() => {
+    let cancelled = false;
+    if (!user || isDemoMode || !apiEnabled) {
+      setRole(null);
+      return;
+    }
+    (async () => {
+      try {
+        const res = await apiFetch("/api/users/me");
+        if (!cancelled) setRole((res?.data?.role as string) ?? null);
+      } catch {
+        if (!cancelled) setRole(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, isDemoMode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -216,7 +240,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, isDemoMode, signUp, signIn, signOut, updateProfile }}
+      value={{ user, loading, isDemoMode, role, signUp, signIn, signOut, updateProfile }}
     >
       {children}
     </AuthContext.Provider>
