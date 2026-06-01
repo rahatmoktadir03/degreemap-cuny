@@ -14,6 +14,7 @@ const perks = [
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { signUp, isDemoMode } = useAuth();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -33,7 +34,7 @@ const RegisterPage = () => {
     }
     setLoading(true);
     try {
-      await signUp(email, password, { school, major });
+      await signUp(email, password, { name, school, major });
       toast.success(
         isDemoMode ? "Account created locally — welcome!" : "Account created! Check your email."
       );
@@ -96,6 +97,20 @@ const RegisterPage = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Full name</label>
+              <div className="relative">
+                <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Rahat Moktadir"
+                  className="pl-9!"
+                  required
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-1.5">Email</label>
               <div className="relative">

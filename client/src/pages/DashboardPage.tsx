@@ -25,9 +25,12 @@ import type { Node as RFNode } from "reactflow";
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { user, updateProfile } = useAuth();
-  const name = (user?.email?.split("@")[0] ?? "student").replace(/\.|_/g, " ");
+  // Prefer a real name from the profile; fall back to a tidied email prefix.
+  const metaName = (user?.user_metadata?.name as string) ?? "";
+  const name = metaName.trim() || (user?.email?.split("@")[0] ?? "student").replace(/\.|_/g, " ");
 
   const [roadmaps, setRoadmaps] = useState<StoredRoadmap[]>([]);
+  const [fullName, setFullName] = useState(metaName);
   const [school, setSchool] = useState((user?.user_metadata?.school as string) ?? "");
   const [major, setMajor] = useState((user?.user_metadata?.major as string) ?? "");
   const [gpa, setGpa] = useState(
@@ -117,13 +120,13 @@ const DashboardPage = () => {
       return;
     }
     try {
-      await updateProfile({ school, major, gpa: gpaNum ?? null });
+      await updateProfile({ name: fullName, school, major, gpa: gpaNum ?? null });
       // Keep the profiles table (advisor source of truth) in sync when online.
       if (apiEnabled) {
         try {
           await apiFetch("/api/users/me", {
             method: "PUT",
-            body: JSON.stringify({ school, major, gpa: gpaNum ?? null }),
+            body: JSON.stringify({ name: fullName, school, major, gpa: gpaNum ?? null }),
           });
         } catch {
           /* metadata already updated; ignore server sync errors */
@@ -279,6 +282,17 @@ const DashboardPage = () => {
             <form onSubmit={handleProfileSave} className="card-surface rounded-2xl p-6 shadow-sm">
               <h2 className="text-lg font-bold">Your profile</h2>
               <div className="mt-3 space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    Full name
+                  </label>
+                  <input
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    aria-label="Full name"
+                    placeholder="e.g. Rahat Moktadir"
+                  />
+                </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     Home campus
