@@ -18,16 +18,9 @@ import type { StoredRoadmap } from "../services/roadmapStore";
 import type { RoadmapNodeData } from "../data/roadmapTemplates";
 import type { Node as RFNode } from "reactflow";
 import type { RoadmapNodeStatus } from "../data/roadmapTemplates";
-
-const milestonesPlan = [
-  { label: "Enrolled at CUNY", done: true, term: "Fall 2024" },
-  { label: "Completed 30 credits (Sophomore)", done: true, term: "Spring 2025" },
-  { label: "Declared major", done: true, term: "Spring 2025" },
-  { label: "Completed 60 credits (Junior)", done: false, term: "Fall 2025" },
-  { label: "Apply for internship", done: false, term: "Spring 2026" },
-  { label: "Completed 90 credits (Senior)", done: false, term: "Spring 2027" },
-  { label: "Graduate 🎓", done: false, term: "Spring 2028" },
-];
+import { semesterOrder } from "../data/semester";
+import { DEGREE_TOTAL, CREDIT_TIERS } from "../data/constants";
+import { useAuth } from "../store/AuthContext";
 
 const STATUS_COLORS: Record<RoadmapNodeStatus | "remaining", string> = {
   complete: "#10b981",
@@ -36,14 +29,21 @@ const STATUS_COLORS: Record<RoadmapNodeStatus | "remaining", string> = {
   remaining: "#e2e8f0",
 };
 
-const DEGREE_TOTAL = 120;
-
 const JourneyDashboardPage = () => {
+  const { user } = useAuth();
   const [roadmaps, setRoadmaps] = useState<StoredRoadmap[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   useEffect(() => {
     (async () => {
-      const list = await roadmapService.listRoadmaps();
-      setRoadmaps(list);
+      try {
+        const list = await roadmapService.listRoadmaps();
+        setRoadmaps(list);
+      } catch {
+        setLoadError(true);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
@@ -73,43 +73,45 @@ const JourneyDashboardPage = () => {
     { name: "Remaining", value: remaining, color: STATUS_COLORS.remaining },
   ].filter((d) => d.value > 0);
 
-  // Per-semester bar chart
+  // Per-semester bar chart, ordered chronologically by term/year.
   const bySemester = useMemo(() => {
-    const map = new Map<string, { semester: string; credits: number; status: RoadmapNodeStatus }>();
+    const map = new Map<
+      string,
+      { semester: string; order: number; complete: number; progress: number; planned: number }
+    >();
     primary?.nodes.forEach((n) => {
       const sem = n.data.semester;
       const c = n.data.credits ?? 0;
       if (!sem || !c) return;
-      const key = `${sem}::${n.data.status}`;
-      const prev = map.get(key);
-      if (prev) prev.credits += c;
-      else map.set(key, { semester: sem, credits: c, status: n.data.status });
+      const row =
+        map.get(sem) ??
+        { semester: sem, order: semesterOrder(n.data.term, n.data.year), complete: 0, progress: 0, planned: 0 };
+      if (n.data.status === "complete") row.complete += c;
+      else if (n.data.status === "in-progress") row.progress += c;
+      else row.planned += c;
+      map.set(sem, row);
     });
-    // group by semester for chart
-    const semesters = Array.from(new Set(Array.from(map.values()).map((v) => v.semester)));
-    return semesters.map((sem) => {
-      const entries = Array.from(map.values()).filter((e) => e.semester === sem);
-      return {
-        semester: sem,
-        complete: entries.filter((e) => e.status === "complete").reduce((a, e) => a + e.credits, 0),
-        progress: entries
-          .filter((e) => e.status === "in-progress")
-          .reduce((a, e) => a + e.credits, 0),
-        planned: entries.filter((e) => e.status === "planned").reduce((a, e) => a + e.credits, 0),
-      };
-    });
+    return Array.from(map.values()).sort((a, b) => a.order - b.order);
   }, [primary]);
+
+  const gradYear = user?.user_metadata?.graduation_year as number | string | undefined;
+  const major = user?.user_metadata?.major as string | undefined;
 
   const stats = [
     { label: "Credits earned", value: `${earned}`, suffix: `/ ${DEGREE_TOTAL}`, icon: TrendingUp },
     { label: "In progress", value: `${inProgress}`, suffix: "cr", icon: GraduationCap },
-    {
-      label: "Major",
-      value: primary?.major ?? primary?.title ?? "BS CS",
-      suffix: "",
-      icon: Target,
-    },
-    { label: "Expected grad", value: "2028", suffix: "", icon: Flag },
+    { label: "Major", value: major || "—", suffix: "", icon: Target },
+    { label: "Expected grad", value: gradYear ? `${gradYear}` : "—", suffix: "", icon: Flag },
+  ];
+
+  // Milestones derived from real progress against credit tiers.
+  const milestones = [
+    { label: "Enrolled at CUNY", done: roadmaps.length > 0 || earned > 0, hint: "Getting started" },
+    ...CREDIT_TIERS.map((tier) => ({
+      label: tier === DEGREE_TOTAL ? "Graduate 🎓" : `Complete ${tier} credits`,
+      done: earned >= tier,
+      hint: `${Math.min(earned, tier)} / ${tier} cr`,
+    })),
   ];
 
   return (
@@ -124,7 +126,11 @@ const JourneyDashboardPage = () => {
               Track your <span className="text-gradient">progress</span>
             </h1>
             <p className="mt-2 text-slate-600 dark:text-slate-400">
-              Live numbers from your active roadmap.
+              {loadError
+                ? "Couldn't load your roadmaps — showing what we have. Check your connection and refresh."
+                : loading
+                  ? "Loading your roadmaps…"
+                  : "Live numbers from your active roadmap."}
             </p>
           </div>
           {primary && (
@@ -274,7 +280,7 @@ const JourneyDashboardPage = () => {
         <div className="mt-6 card-surface rounded-2xl p-6 shadow-sm">
           <h2 className="text-lg font-bold mb-4">Milestones</h2>
           <ol className="relative border-l-2 border-slate-200 dark:border-slate-700 ml-3 space-y-5">
-            {milestonesPlan.map((m) => (
+            {milestones.map((m) => (
               <li key={m.label} className="ml-5">
                 <span
                   className={`absolute -left-[11px] flex items-center justify-center w-5 h-5 rounded-full ${
@@ -290,7 +296,7 @@ const JourneyDashboardPage = () => {
                   )}
                 </span>
                 <p className="font-semibold">{m.label}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{m.term}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{m.hint}</p>
               </li>
             ))}
           </ol>

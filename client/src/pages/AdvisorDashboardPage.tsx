@@ -4,16 +4,29 @@ import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
+  HelpCircle,
   MessageSquarePlus,
   Search,
   Trash2,
   Users,
 } from "lucide-react";
-import {
-  advisorStudents,
-  getStudentById,
-  type StudentStatus,
-} from "../data/advisorStudents";
+import { listStudents, getStudentRoadmaps, type AdvisorStudentRow } from "../services/advisorService";
+import type { StoredRoadmap } from "../services/roadmapStore";
+import type { RoadmapNodeData } from "../data/roadmapTemplates";
+import type { Node as RFNode } from "reactflow";
+
+type StudentStatus = "on_track" | "at_risk" | "off_track" | "unknown";
+
+interface Student {
+  id: string;
+  name: string;
+  major: string;
+  campus: string;
+  gpa: number | null;
+  credits: number | null;
+  expectedGrad: string;
+  status: StudentStatus;
+}
 
 const statusStyles: Record<StudentStatus, { label: string; cls: string; Icon: typeof CheckCircle2 }> = {
   on_track: {
@@ -31,7 +44,34 @@ const statusStyles: Record<StudentStatus, { label: string; cls: string; Icon: ty
     cls: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300 border-red-200 dark:border-red-500/30",
     Icon: AlertCircle,
   },
+  unknown: {
+    label: "No data",
+    cls: "bg-slate-100 text-slate-600 dark:bg-slate-700/40 dark:text-slate-300 border-slate-200 dark:border-slate-600",
+    Icon: HelpCircle,
+  },
 };
+
+// Status derived from GPA — the only consistent signal available across students.
+const deriveStatus = (gpa: number | null): StudentStatus => {
+  if (gpa == null) return "unknown";
+  if (gpa < 2.0) return "off_track";
+  if (gpa < 2.5) return "at_risk";
+  return "on_track";
+};
+
+const earnedCredits = (roadmaps: StoredRoadmap[]): number =>
+  roadmaps.reduce(
+    (acc, r) =>
+      acc +
+      (r.nodes ?? []).reduce(
+        (a: number, n: RFNode<RoadmapNodeData>) =>
+          n.data?.status === "complete" ? a + (n.data.credits ?? 0) : a,
+        0
+      ),
+    0
+  );
+
+const fmt = (v: string | null | undefined) => (v && v.trim() ? v : "—");
 
 interface Comment {
   id: string;
@@ -41,18 +81,26 @@ interface Comment {
 
 const commentsKey = (studentId: string) => `degreemap.advisor.comments.${studentId}`;
 
-const RosterView = () => {
+const RosterView = ({
+  students,
+  loading,
+  error,
+}: {
+  students: Student[];
+  loading: boolean;
+  error: boolean;
+}) => {
   const [query, setQuery] = useState("");
   const filtered = useMemo(
     () =>
-      advisorStudents.filter(
+      students.filter(
         (s) =>
           !query ||
           s.name.toLowerCase().includes(query.toLowerCase()) ||
           s.major.toLowerCase().includes(query.toLowerCase()) ||
           s.campus.toLowerCase().includes(query.toLowerCase())
       ),
-    [query]
+    [students, query]
   );
 
   return (
@@ -71,15 +119,15 @@ const RosterView = () => {
 
       <div className="mt-8 grid grid-cols-3 gap-4">
         {[
-          { label: "Students", value: advisorStudents.length, color: "text-blue-600 dark:text-blue-300" },
+          { label: "Students", value: students.length, color: "text-blue-600 dark:text-blue-300" },
           {
             label: "At risk",
-            value: advisorStudents.filter((s) => s.status === "at_risk").length,
+            value: students.filter((s) => s.status === "at_risk").length,
             color: "text-amber-600 dark:text-amber-300",
           },
           {
             label: "Off track",
-            value: advisorStudents.filter((s) => s.status === "off_track").length,
+            value: students.filter((s) => s.status === "off_track").length,
             color: "text-red-600 dark:text-red-300",
           },
         ].map((s) => (
@@ -135,8 +183,8 @@ const RosterView = () => {
                     </td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{s.major}</td>
                     <td className="px-4 py-3">{s.campus}</td>
-                    <td className="px-4 py-3">{s.credits}</td>
-                    <td className="px-4 py-3">{s.gpa.toFixed(2)}</td>
+                    <td className="px-4 py-3">{s.credits != null ? s.credits : "—"}</td>
+                    <td className="px-4 py-3">{s.gpa != null ? s.gpa.toFixed(2) : "—"}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${meta.cls}`}
@@ -158,7 +206,13 @@ const RosterView = () => {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
-                    No students match that search.
+                    {loading
+                      ? "Loading students…"
+                      : error
+                        ? "Couldn't load students. You may need advisor access, or check your connection."
+                        : query
+                          ? "No students match that search."
+                          : "No students yet."}
                   </td>
                 </tr>
               )}
@@ -170,25 +224,32 @@ const RosterView = () => {
   );
 };
 
-const StudentDetailView = ({ studentId }: { studentId: string }) => {
-  const student = getStudentById(studentId);
+const StudentDetailView = ({
+  studentId,
+  students,
+  loading,
+}: {
+  studentId: string;
+  students: Student[];
+  loading: boolean;
+}) => {
+  const student = students.find((s) => s.id === studentId);
   const [comments, setComments] = useState<Comment[]>([]);
   const [body, setBody] = useState("");
 
   useEffect(() => {
-    if (!student) return;
     try {
-      const raw = localStorage.getItem(commentsKey(student.id));
+      const raw = localStorage.getItem(commentsKey(studentId));
       setComments(raw ? (JSON.parse(raw) as Comment[]) : []);
     } catch {
       setComments([]);
     }
-  }, [student]);
+  }, [studentId]);
 
   if (!student) {
     return (
       <div className="text-center py-16">
-        <h1 className="text-3xl font-bold">Student not found</h1>
+        <h1 className="text-3xl font-bold">{loading ? "Loading…" : "Student not found"}</h1>
         <Link
           to="/advisor"
           className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold"
@@ -240,7 +301,7 @@ const StudentDetailView = ({ studentId }: { studentId: string }) => {
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold">{student.name}</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm">
-            {student.major} · {student.campus} · {student.email}
+            {student.major} · {student.campus}
           </p>
         </div>
         <span
@@ -256,11 +317,15 @@ const StudentDetailView = ({ studentId }: { studentId: string }) => {
           <dl className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <dt className="text-slate-500 dark:text-slate-400">Credits earned</dt>
-              <dd className="text-2xl font-extrabold">{student.credits}</dd>
+              <dd className="text-2xl font-extrabold">
+                {student.credits != null ? student.credits : "—"}
+              </dd>
             </div>
             <div>
               <dt className="text-slate-500 dark:text-slate-400">GPA</dt>
-              <dd className="text-2xl font-extrabold">{student.gpa.toFixed(2)}</dd>
+              <dd className="text-2xl font-extrabold">
+                {student.gpa != null ? student.gpa.toFixed(2) : "—"}
+              </dd>
             </div>
             <div>
               <dt className="text-slate-500 dark:text-slate-400">Expected graduation</dt>
@@ -271,13 +336,6 @@ const StudentDetailView = ({ studentId }: { studentId: string }) => {
               <dd className="font-semibold">{student.major}</dd>
             </div>
           </dl>
-
-          <div className="mt-5">
-            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-              Advisor notes
-            </p>
-            <p className="mt-1 text-sm">{student.notes}</p>
-          </div>
         </div>
 
         <div className="card-surface rounded-2xl p-6 shadow-sm">
@@ -339,10 +397,57 @@ const StudentDetailView = ({ studentId }: { studentId: string }) => {
 
 const AdvisorDashboardPage = () => {
   const { studentId } = useParams();
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const rows = await listStudents();
+        // Pull each student's earned credits from their roadmaps in parallel.
+        const withCredits = await Promise.all(
+          rows.map(async (r: AdvisorStudentRow) => {
+            let credits: number | null = null;
+            try {
+              credits = earnedCredits(await getStudentRoadmaps(r.id));
+            } catch {
+              credits = null;
+            }
+            const student: Student = {
+              id: r.id,
+              name: fmt(r.name),
+              major: fmt(r.major),
+              campus: fmt(r.school),
+              gpa: r.gpa ?? null,
+              credits,
+              expectedGrad: r.graduation_year ? String(r.graduation_year) : "—",
+              status: deriveStatus(r.gpa ?? null),
+            };
+            return student;
+          })
+        );
+        if (!cancelled) setStudents(withCredits);
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className="bg-hero-gradient">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-        {studentId ? <StudentDetailView studentId={studentId} /> : <RosterView />}
+        {studentId ? (
+          <StudentDetailView studentId={studentId} students={students} loading={loading} />
+        ) : (
+          <RosterView students={students} loading={loading} error={error} />
+        )}
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ export const advisorService = {
   async getStudents(advisorId: string) {
     const { data, error } = await supabaseAdmin
       .from("profiles")
-      .select("id, name, school, major, graduation_year, role, updated_at")
+      .select("id, name, school, major, graduation_year, gpa, role, updated_at")
       .neq("id", advisorId)
       .eq("role", "student")
       .order("updated_at", { ascending: false })

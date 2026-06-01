@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Stray TS compiler output emitted into src (we build with Vite; tsc is noEmit)
+src/**/*.js
+src/**/*.js.map
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
