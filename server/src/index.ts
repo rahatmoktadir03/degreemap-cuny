@@ -59,7 +59,13 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ success: false, message: err.message || "Server error" });
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ DegreeMap server running on http://localhost:${PORT}`);
-  console.log(`   Allowed CORS origins: ${allowedOrigins.join(", ") || "(none)"}`);
-});
+// On Vercel the app is imported by a serverless function (see api/[...path].ts),
+// so we must NOT bind a port there. Vercel sets process.env.VERCEL=1.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`✅ DegreeMap server running on http://localhost:${PORT}`);
+    console.log(`   Allowed CORS origins: ${allowedOrigins.join(", ") || "(none)"}`);
+  });
+}
+
+export default app;
